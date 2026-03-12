@@ -2,6 +2,7 @@ const DIVINE_PRIDE_API_BASE = 'https://www.divine-pride.net/api/database/Item';
 const DIVINE_PRIDE_PAGE_BASE = 'https://www.divine-pride.net/database/item';
 const DIVINE_PRIDE_SEARCH_URL = 'https://www.divine-pride.net/database/search';
 const DIVINE_PRIDE_ICON_BASE = 'https://static.divine-pride.net/images/items/item';
+export const DEFAULT_DIVINE_PRIDE_LANGUAGE = 'en-US,en;q=0.9';
 
 function createTimeoutSignal(timeoutMs) {
   const controller = new AbortController();
@@ -9,14 +10,14 @@ function createTimeoutSignal(timeoutMs) {
   return { controller, timeoutId };
 }
 
-async function fetchText(url, timeoutMs) {
+async function fetchText(url, timeoutMs, { acceptLanguage = DEFAULT_DIVINE_PRIDE_LANGUAGE } = {}) {
   const { controller, timeoutId } = createTimeoutSignal(timeoutMs);
 
   try {
     const response = await fetch(url, {
       headers: {
         'user-agent': 'laro-calc-item-import/1.0',
-        'accept-language': 'en-US,en;q=0.9',
+        'accept-language': acceptLanguage,
       },
       signal: controller.signal,
     });
@@ -170,9 +171,11 @@ export function getDivinePrideIconUrl(id) {
   return `${DIVINE_PRIDE_ICON_BASE}/${id}.png`;
 }
 
-export async function fetchDivinePrideItemApi({ id, apiKey, server, timeoutMs }) {
+export async function fetchDivinePrideItemApi({ id, apiKey, server, language, timeoutMs }) {
   const url = getDivinePrideApiUrl(id, apiKey, server);
-  const { response, body } = await fetchText(url, timeoutMs);
+  const { response, body } = await fetchText(url, timeoutMs, {
+    acceptLanguage: language,
+  });
 
   if (!response.ok) {
     const detail = body.slice(0, 300).trim() || `HTTP ${response.status}`;
@@ -193,9 +196,11 @@ export async function fetchDivinePrideItemApi({ id, apiKey, server, timeoutMs })
   return { url, payload };
 }
 
-export async function fetchDivinePrideItemPage({ id, timeoutMs }) {
+export async function fetchDivinePrideItemPage({ id, timeoutMs, language }) {
   const url = getDivinePridePageUrl(id);
-  const { response, body } = await fetchText(url, timeoutMs);
+  const { response, body } = await fetchText(url, timeoutMs, {
+    acceptLanguage: language,
+  });
 
   if (!response.ok) {
     throw new Error(`Divine Pride item page request failed for item ${id}: HTTP ${response.status}`);
@@ -228,11 +233,13 @@ export async function fetchDivinePrideItemPage({ id, timeoutMs }) {
   };
 }
 
-export async function searchDivinePrideItemsByName({ query, timeoutMs }) {
+export async function searchDivinePrideItemsByName({ query, timeoutMs, language }) {
   const url = new URL(DIVINE_PRIDE_SEARCH_URL);
   url.searchParams.set('q', query);
 
-  const { response, body } = await fetchText(url.toString(), timeoutMs);
+  const { response, body } = await fetchText(url.toString(), timeoutMs, {
+    acceptLanguage: language,
+  });
   if (!response.ok) {
     throw new Error(`Divine Pride search request failed for "${query}": HTTP ${response.status}`);
   }
@@ -240,7 +247,7 @@ export async function searchDivinePrideItemsByName({ query, timeoutMs }) {
   return parseSearchResults(body);
 }
 
-export async function downloadDivinePrideIcon({ id, timeoutMs }) {
+export async function downloadDivinePrideIcon({ id, timeoutMs, language }) {
   const url = getDivinePrideIconUrl(id);
   const { controller, timeoutId } = createTimeoutSignal(timeoutMs);
 
@@ -248,7 +255,7 @@ export async function downloadDivinePrideIcon({ id, timeoutMs }) {
     const response = await fetch(url, {
       headers: {
         'user-agent': 'laro-calc-item-import/1.0',
-        'accept-language': 'en-US,en;q=0.9',
+        'accept-language': language || DEFAULT_DIVINE_PRIDE_LANGUAGE,
       },
       signal: controller.signal,
     });

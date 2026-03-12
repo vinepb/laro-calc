@@ -1,5 +1,6 @@
 {
   "apiKey": "replace-with-your-divine-pride-api-key",
   "defaultServer": "latam",
+  "defaultLanguage": "en-US,en;q=0.9",
   "timeoutMs": 20000
 }

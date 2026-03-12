@@ -4,7 +4,7 @@ import { applyDraft, prepareDraft } from './item-import/workflow.mjs';
 import { validateDraft } from './item-import/validation.mjs';
 
 const usage = `Usage:
-  npm run item:prepare -- --item <item-id-or-name> [--server <server>]
+  npm run item:prepare -- --item <item-id-or-name> [--server <server>] [--language <accept-language>]
   npm run item:apply -- --draft .codex/item-import/<item-id> [--allow-missing-icon]
   npm run item:validate -- --draft .codex/item-import/<item-id>
 `;
@@ -54,6 +54,7 @@ async function main() {
       const result = await prepareDraft({
         itemInput: String(args.item),
         serverOverride: args.server ? String(args.server) : undefined,
+        languageOverride: args.language ? String(args.language) : undefined,
       });
 
       console.log(`Draft prepared at ${result.draftDir}`);

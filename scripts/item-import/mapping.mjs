@@ -87,8 +87,29 @@ const JOB_TITLE_ALIASES = {
   supernovice2: 'SuperNovice',
 };
 
+const CLASS_LINE_ALIASES = [
+  { pattern: /\ball jobs?\b/, classes: ['all'] },
+  { pattern: /\bnovices?\b/, classes: ['Novice'] },
+  { pattern: /\bsuper novices?\b/, classes: ['SuperNovice'] },
+  { pattern: /\bswords?man(?: cls| class|s)?\b/, classes: ['Swordman'] },
+  { pattern: /\bmagicians?(?: cls| class|s)?\b/, classes: ['Magician'] },
+  { pattern: /\barchers?(?: cls| class|s)?\b/, classes: ['Archer'] },
+  { pattern: /\bacolytes?(?: cls| class|s)?\b/, classes: ['Acolyte'] },
+  { pattern: /\bmerchants?(?: cls| class|s)?\b/, classes: ['Merchant'] },
+  { pattern: /\bthie(?:f|ves)(?: cls| class|s)?\b/, classes: ['Thief'] },
+  { pattern: /\btae ?kwon(?: boy| class| cls|s)?\b/, classes: ['TaeKwon'] },
+  { pattern: /\bninjas?(?: class| cls|s)?\b/, classes: ['Ninja'] },
+  { pattern: /\b(?:gunslinger|rebellion)(?: class| cls|s)?\b/, classes: ['Rebellion'] },
+  { pattern: /\b(?:doram|summoner|summonner)(?: class| cls|s)?\b/, classes: ['Doram'] },
+  { pattern: /\b4th classes?\b/, classes: ['4th'] },
+];
+
+function stripColorCodes(value) {
+  return String(value ?? '').replace(/\^[0-9a-f]{6}/gi, '');
+}
+
 function toToken(value) {
-  return normalizeName(value).replace(/\s+/g, '');
+  return normalizeName(stripColorCodes(value)).replace(/\s+/g, '');
 }
 
 function parseNumber(value, fallback = null) {
@@ -96,13 +117,27 @@ function parseNumber(value, fallback = null) {
   return Number.isFinite(numeric) ? numeric : fallback;
 }
 
+function extractDescriptionLine(description, labels) {
+  const sanitized = stripColorCodes(description);
+
+  for (const label of labels) {
+    const match = sanitized.match(new RegExp(`${label}\\s*:\\s*([^\\n]+)`, 'i'));
+    if (match?.[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return null;
+}
+
 function parseStatFromDescription(description, label) {
-  const match = String(description ?? '').match(new RegExp(`${label}\\s*:\\s*(\\d+)`, 'i'));
+  const sanitized = stripColorCodes(description);
+  const match = sanitized.match(new RegExp(`${label}\\s*:\\s*(\\d+)`, 'i'));
   return match ? Number(match[1]) : null;
 }
 
 function inferCanGrade(description) {
-  return /\bGrade\b/i.test(String(description ?? ''));
+  return /\bGrade\b/i.test(stripColorCodes(description));
 }
 
 function inferIsRefinable(itemTypeId, itemSubTypeId, description, canGrade) {
@@ -128,46 +163,47 @@ function inferIsRefinable(itemTypeId, itemSubTypeId, description, canGrade) {
     }
   }
 
-  return /\brefine\b/i.test(String(description ?? '')) ? true : undefined;
+  return /\brefine\b/i.test(stripColorCodes(description)) ? true : undefined;
 }
 
 function normalizeJobs(jobs) {
   return [...new Set(jobs.filter(Boolean))];
 }
 
-function resolveUsableClasses(pagePayload, classNames) {
-  const classEntries = [...classNames];
-  const byToken = new Map(classEntries.map((value) => [toToken(value), value]));
+function normalizeLocationValue(value) {
+  const token = toToken(value);
+  if (token === 'mid' || token.includes('middle')) return LOCAL_HEAD_GEAR_LOCATION.Middle;
+  if (token.includes('lower')) return LOCAL_HEAD_GEAR_LOCATION.Lower;
+  return null;
+}
 
-  if (pagePayload.jobsLine && /all jobs/i.test(pagePayload.jobsLine)) {
+function resolveUsableClasses(apiItem, classNames) {
+  const classEntries = [...classNames];
+  const description = stripColorCodes(apiItem.description);
+  const classesLine = extractDescriptionLine(description, ['Classes', 'Jobs']) ?? '';
+  const normalizedLine = normalizeName(classesLine);
+  const matches = [];
+
+  if (apiItem.EQUIP === 1048575 || /\ball jobs?\b/i.test(classesLine)) {
     return ['all'];
   }
 
-  const enabledJobs = [];
-  for (const rawJobName of pagePayload.enabledJobs ?? []) {
-    const normalized = toToken(rawJobName);
-    const found = byToken.get(normalized) ?? JOB_TITLE_ALIASES[normalized];
-    if (found) {
-      enabledJobs.push(found);
+  for (const alias of CLASS_LINE_ALIASES) {
+    if (alias.pattern.test(normalizedLine)) {
+      matches.push(...alias.classes);
     }
   }
 
-  if (enabledJobs.length > 0) {
-    return normalizeJobs(enabledJobs);
-  }
-
-  const jobsLine = pagePayload.jobsLine ?? '';
-  const matches = [];
-  const jobsLineToken = toToken(jobsLine);
-
-  if (JOB_TITLE_ALIASES[jobsLineToken]) {
-    matches.push(JOB_TITLE_ALIASES[jobsLineToken]);
+  for (const [token, className] of Object.entries(JOB_TITLE_ALIASES)) {
+    if (normalizedLine.includes(token)) {
+      matches.push(className);
+    }
   }
 
   for (const className of classEntries) {
     const token = toToken(className);
     if (!token || token === 'all') continue;
-    if (jobsLineToken.includes(token)) {
+    if (normalizedLine.includes(token)) {
       matches.push(className);
     }
   }
@@ -175,18 +211,38 @@ function resolveUsableClasses(pagePayload, classNames) {
   return normalizeJobs(matches);
 }
 
-function mapWeaponSubtype(apiItem, pagePayload) {
+function createPlacementPayloadFromApi(apiItem) {
+  const description = apiItem.description ?? '';
+  const locationLine = extractDescriptionLine(description, ['Location', 'Equip on', 'Position']);
+  const location = normalizeLocationValue(locationLine)
+    ?? normalizeLocationValue(apiItem.location)
+    ?? (Number(apiItem.LOCA) & 512 ? LOCAL_HEAD_GEAR_LOCATION.Middle : null)
+    ?? (Number(apiItem.LOCA) & 1 ? LOCAL_HEAD_GEAR_LOCATION.Lower : null);
+
+  return {
+    type: extractDescriptionLine(description, ['Type', 'Class']) ?? apiItem.unidName ?? apiItem.name,
+    subtype: apiItem.unidName ?? extractDescriptionLine(description, ['Type', 'Class']) ?? apiItem.name,
+    location,
+  };
+}
+
+function mapWeaponSubtype(apiItem) {
   const apiSubType = parseNumber(apiItem.itemSubTypeId);
   if (apiSubType && Object.values(WEAPON_SUBTYPE_BY_TOKEN).includes(apiSubType)) {
     return apiSubType;
   }
 
-  const subtypeToken = toToken(pagePayload.subtype);
+  const subtypeToken = toToken(extractDescriptionLine(apiItem.description, ['Type']) ?? apiItem.unidName);
   return WEAPON_SUBTYPE_BY_TOKEN[subtypeToken] ?? null;
 }
 
-function mapAmmoSubtype(pagePayload) {
-  const token = toToken(pagePayload.subtype);
+function mapAmmoSubtype(apiItem) {
+  const apiSubType = parseNumber(apiItem.itemSubTypeId);
+  if (apiSubType && Object.values(LOCAL_ITEM_SUBTYPE_ID).includes(apiSubType)) {
+    return apiSubType;
+  }
+
+  const token = toToken(extractDescriptionLine(apiItem.description, ['Type']) ?? apiItem.unidName);
   if (token.includes('arrow')) return LOCAL_ITEM_SUBTYPE_ID.Arrow;
   if (token.includes('bullet')) return LOCAL_ITEM_SUBTYPE_ID.Bullet;
   if (token.includes('kunai')) return LOCAL_ITEM_SUBTYPE_ID.Kunai;
@@ -194,29 +250,30 @@ function mapAmmoSubtype(pagePayload) {
   return null;
 }
 
-function mapCardPosition(apiItem, pagePayload) {
+function mapCardPosition(apiItem) {
   const compositionPos = parseNumber(apiItem.compositionPos);
   if (Object.values(LOCAL_CARD_POSITION).includes(compositionPos)) {
     return compositionPos;
   }
 
-  const token = `${toToken(pagePayload.subtype)} ${toToken(pagePayload.location)}`.trim();
+  const placement = createPlacementPayloadFromApi(apiItem);
+  const token = `${toToken(placement.type)} ${toToken(placement.location)}`.trim();
   if (token.includes('weapon')) return LOCAL_CARD_POSITION.Weapon;
   if (token.includes('head')) return LOCAL_CARD_POSITION.Head;
   if (token.includes('shield')) return LOCAL_CARD_POSITION.Shield;
   if (token.includes('armor') || token.includes('body')) return LOCAL_CARD_POSITION.Armor;
   if (token.includes('garment')) return LOCAL_CARD_POSITION.Garment;
   if (token.includes('shoe') || token.includes('boot') || token.includes('footgear')) return LOCAL_CARD_POSITION.Boot;
-  if (token.includes('leftaccessory')) return LOCAL_CARD_POSITION.AccessoryLeft;
-  if (token.includes('rightaccessory')) return LOCAL_CARD_POSITION.AccessoryRight;
+  if (token.includes('leftaccessory') || token.includes('accessoryleft')) return LOCAL_CARD_POSITION.AccessoryLeft;
+  if (token.includes('rightaccessory') || token.includes('accessoryright')) return LOCAL_CARD_POSITION.AccessoryRight;
   if (token.includes('accessory')) return LOCAL_CARD_POSITION.AccessoryBoth;
   return null;
 }
 
-function mapArmorSubtype(pagePayload) {
-  const typeToken = toToken(pagePayload.type);
-  const subtypeToken = toToken(pagePayload.subtype);
-  const locationToken = toToken(pagePayload.location);
+function mapArmorSubtype(placementPayload) {
+  const typeToken = toToken(placementPayload.type);
+  const subtypeToken = toToken(placementPayload.subtype);
+  const locationToken = toToken(placementPayload.location);
   const token = `${typeToken} ${subtypeToken} ${locationToken}`.trim();
 
   if (token.includes('shadowweapon')) {
@@ -238,7 +295,7 @@ function mapArmorSubtype(pagePayload) {
     return { itemSubTypeId: LOCAL_ITEM_SUBTYPE_ID.ShadowPendant, location: null };
   }
   if (token.includes('costume')) {
-    if (token.includes('middle')) {
+    if (token.includes('middle') || token.includes('mid')) {
       return { itemSubTypeId: LOCAL_ITEM_SUBTYPE_ID.CostumeMiddle, location: null };
     }
     if (token.includes('lower')) {
@@ -255,7 +312,7 @@ function mapArmorSubtype(pagePayload) {
   if (token.includes('upper') || token.includes('upperhead')) {
     return { itemSubTypeId: LOCAL_ITEM_SUBTYPE_ID.Upper, location: null };
   }
-  if (token.includes('middle') || token.includes('middlehead')) {
+  if (token.includes('middle') || token.includes('mid') || token.includes('middlehead')) {
     return { itemSubTypeId: LOCAL_ITEM_SUBTYPE_ID.Upper, location: LOCAL_HEAD_GEAR_LOCATION.Middle };
   }
   if (token.includes('lower') || token.includes('lowerhead')) {
@@ -270,10 +327,10 @@ function mapArmorSubtype(pagePayload) {
   if (token.includes('shoe') || token.includes('boot') || token.includes('footgear')) {
     return { itemSubTypeId: LOCAL_ITEM_SUBTYPE_ID.Boot, location: null };
   }
-  if (token.includes('rightaccessory')) {
+  if (token.includes('rightaccessory') || token.includes('accessoryright')) {
     return { itemSubTypeId: LOCAL_ITEM_SUBTYPE_ID.AccessoryRight, location: null };
   }
-  if (token.includes('leftaccessory')) {
+  if (token.includes('leftaccessory') || token.includes('accessoryleft')) {
     return { itemSubTypeId: LOCAL_ITEM_SUBTYPE_ID.AccessoryLeft, location: null };
   }
   if (token.includes('accessory')) {
@@ -286,24 +343,23 @@ function mapArmorSubtype(pagePayload) {
   return null;
 }
 
-function mapPlacement(apiItem, pagePayload) {
-  const typeToken = toToken(pagePayload.type);
-  const subtypeToken = toToken(pagePayload.subtype);
+function mapPlacement(apiItem) {
+  const itemTypeId = parseNumber(apiItem.itemTypeId);
+  const placementPayload = createPlacementPayloadFromApi(apiItem);
+  const typeToken = toToken(placementPayload.type);
+  const subtypeToken = toToken(placementPayload.subtype);
 
-  if (typeToken.includes('consumable')) {
+  if (itemTypeId === LOCAL_ITEM_TYPE_ID.CONSUMABLE || typeToken.includes('consumable')) {
     return { supported: false, reason: 'Consumables are outside the v1 add-item workflow.' };
   }
-  if (typeToken.includes('costume') || subtypeToken.includes('costume')) {
-    return { supported: false, reason: 'Costume items are outside the v1 add-item workflow.' };
-  }
-  if (typeToken.includes('etc') || typeToken.includes('other')) {
+  if (itemTypeId === LOCAL_ITEM_TYPE_ID.ETC || typeToken.includes('etc') || typeToken.includes('other')) {
     return { supported: false, reason: 'ETC and Other items are outside the v1 add-item workflow.' };
   }
   if (typeToken.includes('enchant') || subtypeToken.includes('enchant')) {
     return { supported: false, reason: 'Enchant items require side-table handling and are outside the automatic apply path.' };
   }
-  if (typeToken.includes('card')) {
-    const compositionPos = mapCardPosition(apiItem, pagePayload);
+  if (itemTypeId === LOCAL_ITEM_TYPE_ID.CARD) {
+    const compositionPos = mapCardPosition(apiItem);
     if (compositionPos == null) {
       return { supported: false, reason: 'Unable to map the card composition position into the calculator format.' };
     }
@@ -315,8 +371,8 @@ function mapPlacement(apiItem, pagePayload) {
       location: null,
     };
   }
-  if (typeToken.includes('ammo') || typeToken.includes('ammunition')) {
-    const itemSubTypeId = mapAmmoSubtype(pagePayload);
+  if (itemTypeId === LOCAL_ITEM_TYPE_ID.AMMO || typeToken.includes('ammo') || typeToken.includes('ammunition')) {
+    const itemSubTypeId = mapAmmoSubtype(apiItem);
     if (itemSubTypeId == null) {
       return { supported: false, reason: 'Unable to map the ammunition subtype into the calculator format.' };
     }
@@ -328,8 +384,8 @@ function mapPlacement(apiItem, pagePayload) {
       location: null,
     };
   }
-  if (typeToken.includes('weapon')) {
-    const itemSubTypeId = mapWeaponSubtype(apiItem, pagePayload);
+  if (itemTypeId === LOCAL_ITEM_TYPE_ID.WEAPON) {
+    const itemSubTypeId = mapWeaponSubtype(apiItem);
     if (itemSubTypeId == null) {
       return { supported: false, reason: 'Unable to map the weapon subtype into the calculator format.' };
     }
@@ -341,8 +397,11 @@ function mapPlacement(apiItem, pagePayload) {
       location: null,
     };
   }
+  if (itemTypeId !== LOCAL_ITEM_TYPE_ID.ARMOR) {
+    return { supported: false, reason: `Unsupported itemTypeId ${itemTypeId}.` };
+  }
 
-  const armorPlacement = mapArmorSubtype(pagePayload);
+  const armorPlacement = mapArmorSubtype(placementPayload);
   if (armorPlacement == null) {
     return { supported: false, reason: 'Unable to map the equipment slot into the calculator format.' };
   }
@@ -360,39 +419,38 @@ function shouldRequireManualFollowUp(itemTypeId) {
   return itemTypeId === LOCAL_ITEM_TYPE_ID.CONSUMABLE || itemTypeId === LOCAL_ITEM_TYPE_ID.ENCHANT;
 }
 
-export function mapDivinePrideItem({ apiItem, pagePayload, classNames }) {
+export function mapDivinePrideItem({ apiItem, classNames }) {
   const warnings = [];
   const blockingWarnings = [];
 
-  const placement = mapPlacement(apiItem, pagePayload);
+  const placement = mapPlacement(apiItem);
   if (!placement.supported) {
     blockingWarnings.push(placement.reason);
   }
 
-  const description = pagePayload.description || apiItem.description || '';
+  const description = apiItem.description || '';
   const canGrade = inferCanGrade(description);
   const attack = apiItem.attack ?? parseStatFromDescription(description, 'Atk');
   const defense = apiItem.defense ?? parseStatFromDescription(description, 'Defense');
   const itemLevel = apiItem.itemLevel
     ?? parseStatFromDescription(description, 'Armor Level')
     ?? parseStatFromDescription(description, 'Weapon Level');
-  const requiredLevel = apiItem.requiredLevel ?? parseStatFromDescription(description, 'Required Level');
-  const usableClass = resolveUsableClasses(pagePayload, classNames);
+  const requiredLevel = apiItem.requiredLevel
+    ?? parseStatFromDescription(description, 'Required level')
+    ?? parseStatFromDescription(description, 'Level required')
+    ?? parseStatFromDescription(description, 'Required Level');
+  const usableClass = resolveUsableClasses(apiItem, classNames);
 
   if (!usableClass.length) {
-    if (pagePayload.jobsLine && !/all jobs/i.test(pagePayload.jobsLine)) {
-      blockingWarnings.push('Could not derive a usableClass list from the Divine Pride page. Review and map the job restrictions before apply.');
-    } else {
-      warnings.push('Could not derive a usableClass list from the Divine Pride page. Review before apply.');
-    }
+    warnings.push('Could not derive a usableClass list from the Divine Pride API description. Review before apply.');
   }
 
   const mappedItem = toStableItemObject({
     id: Number(apiItem.id),
-    aegisName: apiItem.aegisName ?? pagePayload.aegisName ?? apiItem.name,
-    name: apiItem.name ?? pagePayload.name,
-    unidName: apiItem.unidName ?? (placement.itemTypeId === LOCAL_ITEM_TYPE_ID.CARD ? 'Card' : (pagePayload.subtype ?? pagePayload.type ?? apiItem.name)),
-    resName: apiItem.resName ?? apiItem.name ?? pagePayload.name,
+    aegisName: apiItem.aegisName ?? apiItem.name,
+    name: apiItem.name,
+    unidName: apiItem.unidName ?? (placement.itemTypeId === LOCAL_ITEM_TYPE_ID.CARD ? 'Card' : apiItem.name),
+    resName: apiItem.resName ?? apiItem.name,
     description,
     slots: apiItem.slots ?? 0,
     itemTypeId: placement.itemTypeId ?? null,
@@ -401,7 +459,7 @@ export function mapDivinePrideItem({ apiItem, pagePayload, classNames }) {
     attack,
     ...(apiItem.propertyAtk != null ? { propertyAtk: apiItem.propertyAtk } : {}),
     defense,
-    weight: apiItem.weight ?? pagePayload.weight ?? 0,
+    weight: apiItem.weight ?? 0,
     requiredLevel,
     location: placement.location ?? null,
     compositionPos: placement.compositionPos ?? null,

@@ -40,6 +40,7 @@ ${META_END}
 - Resolved ID: ${meta.resolvedId}
 - Resolved Name: ${meta.resolvedName}
 - Divine Pride server: ${meta.server}
+- Divine Pride language: ${meta.language}
 - Divine Pride API URL: ${meta.apiUrl}
 - Divine Pride page URL: ${meta.pageUrl}
 - Candidate item: ${candidate.name}

@@ -39,12 +39,13 @@ The production output is written to `dist/pages` with base href `/laro-calc/`.
 The calculator has a local draft-first item import workflow for new equipment and cards.
 
 1. Copy `.divine-pride.local.example.json` to `.divine-pride.local.json`.
-2. Fill in your Divine Pride API key and keep `defaultServer` set to `latam` unless you want a different local default.
+2. Fill in your Divine Pride API key and keep `defaultServer` set to `latam` and `defaultLanguage` set to English unless you want different local defaults.
 3. Prepare a draft:
 
 ```bash
 npm run item:prepare -- --item 450407
 npm run item:prepare -- --item "Convertible Critical Armor [1]"
+npm run item:prepare -- --item 450407 --server LATAM --language en-US
 ```
 
 4. Review the generated draft in `.codex/item-import/<item-id>/`.
@@ -64,5 +65,7 @@ npm run item:apply -- --draft .codex/item-import/450407
 ```bash
 npm run item:validate -- --draft .codex/item-import/450407
 ```
+
+The workflow uses the Divine Pride API as the authoritative item source, setting both `server` and `Accept-Language` on API requests. The Divine Pride website search page is only used to resolve an item ID when you pass a name instead of a numeric ID.
 
 The workflow downloads the local item icon automatically and only writes into `src/assets/demo/data/item.json` after the draft has been reviewed.

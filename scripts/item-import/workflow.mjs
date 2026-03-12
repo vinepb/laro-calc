@@ -25,9 +25,10 @@ import {
   readText,
 } from './io.mjs';
 import {
+  DEFAULT_DIVINE_PRIDE_LANGUAGE,
   downloadDivinePrideIcon,
   fetchDivinePrideItemApi,
-  fetchDivinePrideItemPage,
+  getDivinePridePageUrl,
   searchDivinePrideItemsByName,
 } from './divine-pride.mjs';
 import { mapDivinePrideItem } from './mapping.mjs';
@@ -64,6 +65,10 @@ function canonicalizeServer(server) {
   return SERVER_CANONICAL_MAP.get(String(server).trim().toLowerCase()) ?? String(server).trim();
 }
 
+function canonicalizeLanguage(language) {
+  return String(language ?? '').trim();
+}
+
 async function loadLocalConfig() {
   if (!(await fileExists(localConfigPath))) {
     throw new Error(
@@ -75,13 +80,11 @@ async function loadLocalConfig() {
   if (!config.apiKey || typeof config.apiKey !== 'string') {
     throw new Error(`Invalid ${repoRelative(localConfigPath)}: "apiKey" must be a non-empty string.`);
   }
-  if (!config.defaultServer || typeof config.defaultServer !== 'string') {
-    throw new Error(`Invalid ${repoRelative(localConfigPath)}: "defaultServer" must be a non-empty string.`);
-  }
 
   return {
     apiKey: config.apiKey,
-    defaultServer: canonicalizeServer(config.defaultServer),
+    defaultServer: canonicalizeServer(config.defaultServer || 'LATAM'),
+    defaultLanguage: canonicalizeLanguage(config.defaultLanguage || DEFAULT_DIVINE_PRIDE_LANGUAGE),
     timeoutMs: Number.isFinite(config.timeoutMs) ? Number(config.timeoutMs) : 20000,
   };
 }
@@ -109,7 +112,7 @@ function rankSearchResults(results, query) {
   });
 }
 
-async function resolveItemInput({ itemInput, localItems, timeoutMs }) {
+async function resolveItemInput({ itemInput, localItems, timeoutMs, language }) {
   const localNameMatches = findLocalNameMatches(localItems, itemInput);
 
   if (/^\d+$/.test(itemInput.trim())) {
@@ -122,7 +125,7 @@ async function resolveItemInput({ itemInput, localItems, timeoutMs }) {
   }
 
   const searchResults = rankSearchResults(
-    await searchDivinePrideItemsByName({ query: itemInput, timeoutMs }),
+    await searchDivinePrideItemsByName({ query: itemInput, timeoutMs, language }),
     itemInput,
   );
 
@@ -156,6 +159,7 @@ function createDraftMeta({
   resolvedId,
   resolvedName,
   server,
+  language,
   apiUrl,
   pageUrl,
   iconDownloaded,
@@ -169,6 +173,7 @@ function createDraftMeta({
     resolvedId,
     resolvedName,
     server,
+    language,
     apiUrl,
     pageUrl,
     draftDir,
@@ -186,7 +191,7 @@ function createDraftMeta({
   };
 }
 
-export async function prepareDraft({ itemInput, serverOverride }) {
+export async function prepareDraft({ itemInput, serverOverride, languageOverride }) {
   const [config, localItems, classNames] = await Promise.all([
     loadLocalConfig(),
     loadLocalItems(),
@@ -197,31 +202,28 @@ export async function prepareDraft({ itemInput, serverOverride }) {
     itemInput,
     localItems,
     timeoutMs: config.timeoutMs,
+    language: canonicalizeLanguage(languageOverride ?? config.defaultLanguage),
   });
 
   const resolvedId = resolved.resolvedId;
   const server = canonicalizeServer(serverOverride ?? config.defaultServer);
+  const language = canonicalizeLanguage(languageOverride ?? config.defaultLanguage);
   const draftDir = path.join(draftRootDir, String(resolvedId));
 
   await removeDir(draftDir);
   await ensureDir(draftDir);
 
-  const [{ url: apiUrl, payload: apiItem }, { url: pageUrl, payload: pagePayload }] = await Promise.all([
-    fetchDivinePrideItemApi({
-      id: resolvedId,
-      apiKey: config.apiKey,
-      server,
-      timeoutMs: config.timeoutMs,
-    }),
-    fetchDivinePrideItemPage({
-      id: resolvedId,
-      timeoutMs: config.timeoutMs,
-    }),
-  ]);
+  const pageUrl = getDivinePridePageUrl(resolvedId);
+  const { url: apiUrl, payload: apiItem } = await fetchDivinePrideItemApi({
+    id: resolvedId,
+    apiKey: config.apiKey,
+    server,
+    language,
+    timeoutMs: config.timeoutMs,
+  });
 
   const mapped = mapDivinePrideItem({
     apiItem,
-    pagePayload,
     classNames,
   });
 
@@ -237,7 +239,11 @@ export async function prepareDraft({ itemInput, serverOverride }) {
   }
   nonBlockingWarnings.push('Confirm manually whether this item also needs _enchant_table.ts or another side-table update before apply.');
 
-  const iconDownload = await downloadDivinePrideIcon({ id: resolvedId, timeoutMs: config.timeoutMs });
+  const iconDownload = await downloadDivinePrideIcon({
+    id: resolvedId,
+    language,
+    timeoutMs: config.timeoutMs,
+  });
   const iconPath = path.join(draftDir, 'icon.png');
   if (iconDownload.ok && iconDownload.buffer) {
     await writeBuffer(iconPath, iconDownload.buffer);
@@ -253,6 +259,7 @@ export async function prepareDraft({ itemInput, serverOverride }) {
     resolvedId,
     resolvedName: candidate.name || resolved.resolvedName || apiItem.name,
     server,
+    language,
     apiUrl,
     pageUrl,
     iconDownloaded: iconDownload.ok,
@@ -265,7 +272,6 @@ export async function prepareDraft({ itemInput, serverOverride }) {
 
   await writeJson(path.join(draftDir, 'source.json'), {
     apiItem,
-    pagePayload,
     searchResults: resolved.searchResults,
   });
   await writeJson(path.join(draftDir, 'candidate.item.json'), candidate);
