@@ -49,7 +49,6 @@ import { BattleDmgSummaryComponent } from './battle-dmg-summary/battle-dmg-summa
 import { BattleMonsterSummaryComponent } from './battle-monster-summary/battle-monster-summary.component';
 import { EquipmentCosEnchantComponent } from './equipment-cos-enchant/equipment-cos-enchant.component';
 import { StatusInputComponent } from './status-input/status-input.component';
-import { DivinePrideSearchComponent } from './divine-pride-search/divine-pride-search.component';
 
 @NgModule({
   imports: [
@@ -104,7 +103,6 @@ import { DivinePrideSearchComponent } from './divine-pride-search/divine-pride-s
     BattleMonsterSummaryComponent,
     EquipmentCosEnchantComponent,
     StatusInputComponent,
-    DivinePrideSearchComponent,
   ],
   exports: [CalcValueComponent],
 })

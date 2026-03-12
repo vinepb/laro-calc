@@ -67,20 +67,6 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
-            },
-            "local": {
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.local.ts"
-                }
-              ]
             }
           },
           "defaultConfiguration": "production"
@@ -96,9 +82,6 @@
             },
             "development": {
               "browserTarget": "sakai-ng:build:development"
-            },
-            "local": {
-              "browserTarget": "sakai-ng:build:local"
             }
           },
           "defaultConfiguration": "development"
@@ -128,16 +111,6 @@
               "src/favicon.ico",
               "src/assets"
             ]
-          },
-          "configurations": {
-            "local": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.local.ts"
-                }
-              ]
-            }
           }
         },
         "lint": {

@@ -2,7 +2,6 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Subscription } from 'rxjs';
-import { environment } from 'src/environments/environment';
 
 import { LayoutService } from './service/app.layout.service';
 
@@ -22,7 +21,6 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
   visibleInfo: boolean = false;
   visibleReference = false;
-  env = environment;
 
   infos = [
     'Item, monster, and skill data comes from "divine-pride" website',
@@ -183,20 +181,6 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
   updates: { v: string; date: string; logs: string[]; }[] = [
     {
-      v: '0.3.0-BETA',
-      date: new Date().toLocaleDateString('en-US'),
-      logs: [
-        "Divine Pride Search Feature: Added comprehensive item search functionality directly in topbar",
-        "Professional UI: Created Divine Pride-style modal with dual icon system (large collection + small title icons)",
-        "Smart Data Extraction: Automatically extracts and organizes stats (Type, ATK/DEF, Weight, Levels, Classes, Effects)",
-        "Advanced Text Processing: Supports Divine Pride color codes with proper blue/gray/white formatting",
-        "LATAM Server Integration: Configured for Latin America server with English language optimization",
-        "Proper Spacing: Automatic tab formatting after colons in descriptions (e.g., 'DEF:     15')",
-        "Error Handling: Graceful API error handling and missing image fallbacks",
-        "Raw JSON View: Expandable accordion showing complete API response for debugging",
-      ],
-    },
-    {
       v: '0.2.2-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
@@ -222,17 +206,6 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
       ],
     },
     {
-      v: '0.2.0-BETA',
-      date: new Date().toLocaleDateString('en-US'),
-      logs: [
-        "Divine Pride API Service: Added external API integration for Ragnarok Online game data",
-        "New service endpoints: getSkill(), getMonster(), getItem() with real-time data from Divine Pride API",
-        "Complete TypeScript models for API responses: skills, monsters, and items",
-        "Environment-based API key configuration with support for multiple servers (defaults to bRO)",
-        "Comprehensive integration tests with real API calls using actual game data",
-      ],
-    },
-    {
       v: '0.1.5-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
@@ -247,10 +220,8 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
       date: new Date().toLocaleDateString('en-US'),
       logs: [
         "Navbar clean-up: moved References button to footer, repositioned version to right side",
-        "Updated website title to 'Ragnarok Online LATAM Calculator'",
         "Icon consistency fix: standardized all topbar icons to 1.25rem size with CSS rules",
         "Converted home button from tab menu to regular button for consistency",
-        "Enhanced footer: added References functionality while preserving attribution layout",
         "Code optimization: removed unused tab properties, reduced bundle size by 11.73 kB",
       ],
     },
@@ -260,7 +231,6 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
       logs: [
         "Major navbar redesign: moved Calculator to far left as home icon only, removed green selection bar",
         "Improved spacing between search icon and Items text, enhanced Settings cogwheel sizing",
-        "Made footer text 'NITROBLISSERINO ATTACK SQUAD @ ROLA' bold and italic",
         "Complete Thai text translation: penetration labels, skill names, reference titles, and author names",
         "CSS cleanup: removed problematic border styling causing visual issues",
       ],
@@ -287,7 +257,6 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
         "Removed support functionality", 
         "Reset version to 0.0.1-BETA",
         "Reorganized topbar layout: Version/Bell/References on left, Calculator/Items/Settings on right",
-        "Updated footer attribution to 'NITROBLISSERINO ATTACK SQUAD @ ROLA' with Tong Calc credit",
       ],
     },
   ];
@@ -344,10 +313,6 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
   showItemSearchDialog() {
     this.layoutService.showItemSearchDialog();
-  }
-
-  showDivinePrideSearchDialog() {
-    this.layoutService.showDivinePrideSearchDialog();
   }
 
   showConfigSidebar() {

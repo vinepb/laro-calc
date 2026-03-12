@@ -1,17 +1,15 @@
 {
-    "name": "ro-calculator",
-    "version": "0.2.0-BETA",
+    "name": "laro-calc",
+    "version": "1.0.3",
     "scripts": {
         "ng": "ng",
-        "start": "ng serve --host 0.0.0.0 --hmr --port 4200",
-        "start-local": "ng serve --configuration=local --host 0.0.0.0 --hmr --port 4200",
+        "start": "ng serve  --host 0.0.0.0 --hmr --port 4200",
+        "start2": "ng serve",
         "build": "ng build",
+        "build:pages": "ng build --output-path dist/pages --base-href /laro-calc/",
         "test": "ng test",
-        "test:divine-pride": "npx ng test --configuration=local --watch=false --browsers=ChromeHeadless",
         "lint": "ng lint --fix",
-        "e2e": "ng e2e",
-        "predeploy": "ng build --output-hashing all --output-path ..\\nas-calc-host\\docs --base-href /nas-calc-host/",
-        "deploy": "copy ..\\nas-calc-host\\docs\\index.html ..\\nas-calc-host\\docs\\404.html"
+        "e2e": "ng e2e"
     },
     "private": true,
     "dependencies": {
