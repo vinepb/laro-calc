@@ -19,5 +19,7 @@ export interface ItemModel {
   isRefinable?: boolean;
   cardPrefix?: string;
   canGrade?: boolean;
+  usableClass?: string[];
+  unusableClass?: string[];
   script: Record<string, any[]>;
 }

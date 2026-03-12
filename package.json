@@ -7,6 +7,9 @@
         "start2": "ng serve",
         "build": "ng build",
         "build:pages": "ng build --output-path dist/pages --base-href /laro-calc/",
+        "item:prepare": "node ./scripts/item-import.mjs prepare",
+        "item:apply": "node ./scripts/item-import.mjs apply",
+        "item:validate": "node ./scripts/item-import.mjs validate",
         "test": "ng test",
         "lint": "ng lint --fix",
         "e2e": "ng e2e"
