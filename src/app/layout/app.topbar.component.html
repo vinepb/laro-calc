@@ -9,7 +9,7 @@
       pButton 
       class="p-button-text p-button-info mr-3" 
       routerLink="/"
-      pTooltip="Home"
+      [pTooltip]="'topbar.tooltip.home' | t"
       tooltipPosition="bottom"
     >
       <i class="pi pi-home"></i>
@@ -58,12 +58,21 @@
         pButton
         (click)="showItemSearchDialog()"
         class="p-button-info p-button-text mr-2"
-        pTooltip="Search Items"
+        [pTooltip]="'topbar.tooltip.items' | t"
         tooltipPosition="bottom"
       >
         <i class="pi pi-search mr-2"></i>
-        <span>Items</span>
+        <span>{{ 'topbar.items' | t }}</span>
       </button>
+
+      <p-dropdown
+        [(ngModel)]="selectedLanguage"
+        [options]="languageOptions"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="topbar-language-dropdown"
+        panelStyleClass="topbar-language-dropdown-panel"
+      ></p-dropdown>
 
       <!-- Settings Cogwheel Button with better sizing -->
       <button 
@@ -71,7 +80,7 @@
         class="p-button-text p-2" 
         type="button" 
         (click)="showConfigSidebar()"
-        pTooltip="Settings (Scale & Colors)"
+        [pTooltip]="'topbar.tooltip.settings' | t"
         tooltipPosition="bottom"
         style="padding: 0.75rem;"
       >
@@ -80,15 +89,14 @@
     </div>
   </div>
 
-
-  <p-dialog header="Additional Information" [draggable]="false" [resizable]="false" [modal]="true" [(visible)]="visibleInfo" [style]="{ width: '50vw' }">
+  <p-dialog [header]="'topbar.additionalInformation' | t" [draggable]="false" [resizable]="false" [modal]="true" [(visible)]="visibleInfo" [style]="{ width: '50vw' }">
     <div class="card flex flex-column align-items-center gap-2 flex-wrap">
       <ul>
-        <li *ngFor="let info of infos">{{ info }}</li>
+        <li *ngFor="let info of infos">{{ info | t }}</li>
       </ul>
 
       <div>
-        Report issues via
+        {{ 'topbar.reportIssuesVia' | t }}
         <a href="https://web.facebook.com/zfehu.oivgwhy" target="_blank" rel="noreferrer noopener">
           <p-chip label="Tong Aphisit" icon="pi pi-facebook"></p-chip>
         </a>
@@ -107,7 +115,7 @@
   >
     <ng-template pTemplate="header">
       <div class="flex">
-        <span class="text-xl mr-3 font-medium">CHANGELOG</span>
+        <span class="text-xl mr-3 font-medium">{{ 'topbar.changelog' | t }}</span>
       </div>
     </ng-template>
 
@@ -129,17 +137,17 @@
         </div>
       </div>
       <ul class="mt-0">
-        <li *ngFor="let log of update.logs">{{ log }}</li>
+        <li *ngFor="let log of update.logs">{{ log | t }}</li>
       </ul>
     </div>
   </p-dialog>
 
-  <p-dialog header="References" [draggable]="false" [resizable]="false" [modal]="true" [(visible)]="visibleReference" [style]="{ width: '50vw', height: '70vh' }">
+  <p-dialog [header]="'common.references' | t" [draggable]="false" [resizable]="false" [modal]="true" [(visible)]="visibleReference" [style]="{ width: '50vw', height: '70vh' }">
     <ul>
       <li *ngFor="let reference of references">
-        <span class="">[ by {{ reference.writer }} ]</span>
+        <span class="">[ {{ 'common.by' | t }} {{ reference.writer }} ]</span>
         <span class="mx-2">{{ reference.label }}</span>
-        <a href="{{ reference.link }}" target="_blank" rel="noreferrer noopener">Link</a>
+        <a href="{{ reference.link }}" target="_blank" rel="noreferrer noopener">{{ 'common.link' | t }}</a>
       </li>
     </ul>
   </p-dialog>

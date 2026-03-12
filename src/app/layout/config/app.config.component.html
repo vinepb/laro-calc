@@ -4,7 +4,7 @@
   [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'"
   styleClass="layout-config-sidebar w-20rem"
 >
-  <h5>Scale</h5>
+  <h5>{{ 'config.scale' | t }}</h5>
   <div class="flex align-items-center">
     <button
       icon="pi pi-minus"
@@ -44,7 +44,7 @@
     </ng-container> -->
 
   <ng-container *ngIf="!isProd || !minimal">
-    <h5>Input Style</h5>
+    <h5>{{ 'config.inputStyle' | t }}</h5>
     <div class="flex">
       <div class="field-radiobutton flex-1">
         <p-radioButton
@@ -53,21 +53,21 @@
           [(ngModel)]="inputStyle"
           inputId="outlined_input"
         ></p-radioButton>
-        <label for="outlined_input">Outlined</label>
+        <label for="outlined_input">{{ 'config.outlined' | t }}</label>
       </div>
       <div class="field-radiobutton flex-1">
         <p-radioButton name="inputStyle" value="filled" [(ngModel)]="inputStyle" inputId="filled_input"></p-radioButton>
-        <label for="filled_input">Filled</label>
+        <label for="filled_input">{{ 'config.filled' | t }}</label>
       </div>
     </div>
 
-    <h5 *ngIf="!env.production">Ripple Effect</h5>
+    <h5 *ngIf="!env.production">{{ 'config.rippleEffect' | t }}</h5>
     <p-inputSwitch *ngIf="!env.production" [(ngModel)]="ripple"></p-inputSwitch>
-    <h5>Hide Basic Atk</h5>
+    <h5>{{ 'config.hideBasicAtk' | t }}</h5>
     <p-inputSwitch [(ngModel)]="hideBasicAtk"></p-inputSwitch>
   </ng-container>
 
-  <h5>Bootstrap</h5>
+  <h5>{{ 'config.bootstrap' | t }}</h5>
   <div class="grid">
     <div class="col-3">
       <button class="p-link w-2rem h-2rem" (click)="changeTheme('bootstrap4-dark-blue', 'dark')">
@@ -89,7 +89,7 @@
     </div>
   </div>
 
-  <h5>Material Design Compact</h5>
+  <h5>{{ 'config.materialCompact' | t }}</h5>
   <div class="grid">
     <div class="col-3">
       <button class="p-link w-2rem h-2rem" (click)="changeTheme('mdc-dark-indigo', 'dark')">
@@ -107,7 +107,7 @@
     </div>
   </div>
 
-  <h5>Material Design</h5>
+  <h5>{{ 'config.material' | t }}</h5>
   <div class="grid">
     <div class="col-3">
       <button class="p-link w-2rem h-2rem" (click)="changeTheme('md-dark-indigo', 'dark')">
@@ -125,7 +125,7 @@
     </div>
   </div>
 
-  <h5>PrimeOne Design - 2022</h5>
+  <h5>{{ 'config.lara' | t }}</h5>
   <div class="grid">
     <div class="col-3">
       <button class="p-link w-2rem h-2rem" (click)="changeTheme('lara-dark-indigo', 'dark')">
@@ -149,7 +149,7 @@
     </div>
   </div>
 
-  <h5>PrimeOne Design - 2021</h5>
+  <h5>{{ 'config.arya' | t }}</h5>
   <div class="grid">
     <div class="col-3">
       <button class="p-link w-2rem h-2rem" (click)="changeTheme('vela-blue', 'dark')">

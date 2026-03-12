@@ -3,13 +3,13 @@
     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
   </div>
   <div class="col-12" [hidden]="!totalSummary?.dmg?.requireTxt">
-    Require: <span class="summary_monster_value text-lg px-1" style="color: var(--red-500)">{{ totalSummary?.dmg?.requireTxt }}</span>
+    {{ 'calculator.battle.require' | t }} <span class="summary_monster_value text-lg px-1" style="color: var(--red-500)">{{ totalSummary?.dmg?.requireTxt }}</span>
   </div>
   <div class="col-5">
-    Type <span class="summary_highlight font-semibold">{{ totalSummary?.calcSkill?.dmgType }}</span>
+    {{ 'calculator.battle.type' | t }} <span class="summary_highlight font-semibold">{{ totalSummary?.calcSkill?.dmgType }}</span>
   </div>
   <div class="col-7">
-    Element:
+    {{ 'calculator.battle.element' | t }}
     <span class="{{ 'property_' + totalSummary?.calcSkill?.propertySkill }} px-1 font-semibold">{{ totalSummary?.calcSkill?.propertySkill }}</span
     ><span class="summary_highlight px-2">( x {{ totalSummary?.dmg?.skillPropertyMultiplier }})</span>
     <span>
@@ -26,7 +26,7 @@
   <div class="col-6">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="BaseSkill:"
+      [label]="'calculator.battle.baseSkill' | t"
       unit="%"
       styleClass="summary_highlight"
       styleClass2="summary_compare"
@@ -37,7 +37,7 @@
   <div class="col-6">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="BonusSkill:"
+      [label]="'calculator.battle.bonusSkill' | t"
       unit="%"
       styleClass="summary_highlight"
       styleClass2="summary_compare"
@@ -48,7 +48,7 @@
   <div class="col-6" [hidden]="totalSummary?.calcSkill?.dmgType === 'Magical'">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="SizePenalty:"
+      [label]="'calculator.battle.sizePenalty' | t"
       unit=" %"
       styleClass="summary_highlight"
       styleClass2="summary_compare"
@@ -59,7 +59,7 @@
   <div class="col-6" [hidden]="totalSummary?.calcSkill?.dmgType === 'Magical'">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="Accuracy:"
+      [label]="'calculator.battle.accuracy' | t"
       unit="%"
       styleClass="summary_highlight"
       styleClass2="summary_compare"
@@ -70,7 +70,7 @@
   <div class="col-6">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="{{ totalSummary?.dmg?.skillTotalPeneLabel || 'Penetration' }}"
+      [label]="totalSummary?.dmg?.skillTotalPeneLabel || ('calculator.battle.penetration' | t)"
       unit="%"
       styleClass="summary_highlight"
       styleClass2="summary_compare"
@@ -81,7 +81,7 @@
   <div class="col-6">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="{{ totalSummary?.dmg?.skillTotalPeneResLabel || 'Penetration' }}"
+      [label]="totalSummary?.dmg?.skillTotalPeneResLabel || ('calculator.battle.penetration' | t)"
       unit="%"
       styleClass="summary_highlight"
       styleClass2="summary_compare"
@@ -108,7 +108,7 @@
   <div class="col-6" [hidden]="!totalSummary?.dmg?.isUsedCurrentHP">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="CurrentHP:"
+      [label]="'calculator.battle.currentHp' | t"
       styleClass="summary_highlight"
       styleClass2="summary_compare"
       [max]="totalSummary?.dmg?.currentHp"
@@ -118,7 +118,7 @@
   <div class="col-6" [hidden]="!totalSummary?.dmg?.isUsedCurrentSP">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="CurrentSp:"
+      [label]="'calculator.battle.currentSp' | t"
       styleClass="summary_highlight"
       styleClass2="summary_compare"
       [max]="totalSummary?.dmg?.currentSp"
@@ -134,9 +134,9 @@
   <div class="col-12" [hidden]="!!totalSummary?.dmg?.requireTxt">
     <div class="grid grid-nogutter">
       <div class="col-6">
-        <app-calc-value
-          [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="VCT:"
+    <app-calc-value
+      [enableCompare]="isEnableCompare && totalSummary2?.dmg"
+      label="VCT:"
           styleClass="summary_value"
           styleClass2="summary_compare"
           [isGreaterIsBetter]="false"
@@ -147,9 +147,9 @@
         ></app-calc-value>
       </div>
       <div class="col-6">
-        <app-calc-value
-          [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="FCT:"
+    <app-calc-value
+      [enableCompare]="isEnableCompare && totalSummary2?.dmg"
+      label="FCT:"
           styleClass="summary_value"
           styleClass2="summary_compare"
           [isGreaterIsBetter]="false"
@@ -160,9 +160,9 @@
         ></app-calc-value>
       </div>
       <div class="col-6">
-        <app-calc-value
-          [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="CD:"
+    <app-calc-value
+      [enableCompare]="isEnableCompare && totalSummary2?.dmg"
+      label="CD:"
           styleClass="summary_value"
           styleClass2="summary_compare"
           [isGreaterIsBetter]="false"
@@ -173,9 +173,9 @@
         ></app-calc-value>
       </div>
       <div class="col-6">
-        <app-calc-value
-          [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="Delay:"
+    <app-calc-value
+      [enableCompare]="isEnableCompare && totalSummary2?.dmg"
+      [label]="'calculator.battle.delay' | t"
           styleClass="summary_value"
           styleClass2="summary_compare"
           [isGreaterIsBetter]="false"
@@ -186,9 +186,9 @@
         ></app-calc-value>
       </div>
       <div class="col-6">
-        <app-calc-value
-          [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="Cast:"
+    <app-calc-value
+      [enableCompare]="isEnableCompare && totalSummary2?.dmg"
+      [label]="'calculator.battle.cast' | t"
           styleClass="summary_damage"
           styleClass2="summary_compare"
           [isGreaterIsBetter]="false"
@@ -197,10 +197,10 @@
         ></app-calc-value>
       </div>
       <div class="col-6">
-        <app-calc-value
-          [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="Skill/s:"
-          unit=" Hits/s"
+    <app-calc-value
+      [enableCompare]="isEnableCompare && totalSummary2?.dmg"
+      [label]="'calculator.battle.skillPerSecond' | t"
+      [unit]="' ' + ('calculator.summary.hitsPerSecond' | t)"
           styleClass="summary_highlight"
           styleClass2="summary_compare"
           [max]="totalSummary?.calcSkill?.totalHitPerSec"
@@ -322,7 +322,7 @@
   <div class="col-12" [hidden]="totalSummary?.dmg?.effectedSkillDamageMin <= 0 || !selectedChances?.length">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="Triggered:"
+      [label]="'calculator.battle.triggered' | t"
       styleClass="summary_chance"
       styleClass2="summary_compare"
       [totalHit]="totalSummary?.calcSkill?.totalHits"
@@ -336,7 +336,7 @@
   <div class="col-12" [hidden]="totalSummary?.dmg?.effectedSkillDamageMin <= 0 || !selectedChances?.length">
     <app-calc-value
       [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-      label="Skill/s:"
+      [label]="'calculator.battle.skillPerSecond' | t"
       styleClass="summary_chance_hilight"
       styleClass2="summary_compare"
       [max]="totalSummary?.dmg?.effectedSkillHitsPerSec"
@@ -363,15 +363,15 @@
   <div class="col-12" [hidden]="hideBasicAtk">
     <div class="grid grid-nogutter">
       <div class="col-12">
-        Element:
+        {{ 'calculator.battle.element' | t }}
         <span class="{{ 'property_' + totalSummary?.propertyAtk }} px-1 font-semibold">{{ totalSummary?.propertyAtk }}</span
         ><span class="summary_highlight px-2">( x {{ totalSummary?.dmg?.propertyMultiplier }})</span>
-        <span class="summary_monster_value px-1 font-bold" style="color: var(--red-500)" [hidden]="!showLeftWeapon || !model.leftWeapon">***Left hand Atk not calculated yet</span>
+        <span class="summary_monster_value px-1 font-bold" style="color: var(--red-500)" [hidden]="!showLeftWeapon || !model.leftWeapon">{{ 'calculator.battle.leftHandNotCalculated' | t }}</span>
       </div>
       <div class="col-6" [hidden]="totalSummary?.dmg?.totalPene === totalSummary?.dmg?.skillTotalPene">
         <app-calc-value
           [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="Penetration:"
+          [label]="'calculator.battle.penetration' | t"
           unit="%"
           styleClass="summary_highlight"
           styleClass2="summary_compare"
@@ -382,7 +382,7 @@
       <div class="col-6" [hidden]="totalSummary?.dmg?.accuracy === totalSummary?.dmg?.skillAccuracy">
         <app-calc-value
           [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="Accuracy:"
+          [label]="'calculator.battle.accuracy' | t"
           unit="%"
           styleClass="summary_highlight"
           styleClass2="summary_compare"
@@ -393,7 +393,7 @@
       <div class="col-12">
         <app-calc-value
           [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="Basic:"
+          [label]="'calculator.battle.basic' | t"
           styleClass="summary_damage"
           styleClass2="summary_compare"
           [min]="totalSummary?.dmg?.basicMinDamage"
@@ -416,7 +416,7 @@
       <div class="col-12">
         <app-calc-value
           [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="DmgCri:"
+          [label]="'calculator.battle.damageCri' | t"
           styleClass="summary_damage"
           styleClass2="summary_compare"
           [min]="totalSummary?.dmg?.criMinDamage"
@@ -439,7 +439,7 @@
       <div class="col-12" [hidden]="totalSummary?.dmg?.effectedBasicDamageMin <= 0 || !selectedChances?.length">
         <app-calc-value
           [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="Triggered DmgCri:"
+          [label]="'calculator.battle.triggeredDamageCri' | t"
           styleClass="summary_chance"
           styleClass2="summary_compare"
           [min]="totalSummary?.dmg?.effectedBasicCriDamageMin"

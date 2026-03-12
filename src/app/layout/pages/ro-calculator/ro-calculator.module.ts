@@ -30,6 +30,7 @@ import { DataViewModule } from 'primeng/dataview';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
+import { I18nModule } from 'src/app/i18n/i18n.module';
 
 import { RoCalculatorComponent } from './ro-calculator.component';
 import { PrettyJsonPipe } from '../../prettier-json.pipe';
@@ -65,6 +66,7 @@ import { StatusInputComponent } from './status-input/status-input.component';
     InputNumberModule,
     InputSwitchModule,
     InputTextModule,
+    I18nModule,
     ListboxModule,
     MultiSelectModule,
     OrderListModule,

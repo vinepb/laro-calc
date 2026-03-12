@@ -6,6 +6,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { ButtonModule } from 'primeng/button';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { AppConfigComponent } from './app.config.component';
+import { I18nModule } from 'src/app/i18n/i18n.module';
 
 @NgModule({
     imports: [
@@ -14,7 +15,8 @@ import { AppConfigComponent } from './app.config.component';
         SidebarModule,
         RadioButtonModule,
         ButtonModule,
-        InputSwitchModule
+        InputSwitchModule,
+        I18nModule,
     ],
     declarations: [
         AppConfigComponent

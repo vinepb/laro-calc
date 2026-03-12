@@ -4,6 +4,7 @@ import { ItemTypeEnum } from '../../../../constants/item-type.enum';
 import { ClassID, ClassIcon } from '../../../../jobs/_class-name';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { getClassDropdownList } from '../../../../jobs/_class-list';
+import { I18nService } from 'src/app/i18n/i18n.service';
 
 const displayMainItemKeys = [
   ItemTypeEnum.weapon,
@@ -60,6 +61,7 @@ export class PresetTableComponent implements OnInit, OnDestroy {
   constructor(
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private readonly i18nService: I18nService,
     public ref: DynamicDialogRef,
     private dynamicDialogConfig: DynamicDialogConfig,
   ) {}
@@ -88,7 +90,7 @@ export class PresetTableComponent implements OnInit, OnDestroy {
     return new Promise((res) => {
       this.confirmationService.confirm({
         message: message,
-        header: 'Confirmation',
+        header: this.i18nService.t('common.confirmation'),
         icon: icon || 'pi pi-exclamation-triangle',
         accept: () => {
           res(true);
@@ -174,7 +176,58 @@ export class PresetTableComponent implements OnInit, OnDestroy {
   }
 
   getItemLabel(itemId: number) {
-    return this.items[itemId]?.name || 'empty';
+    return this.items[itemId]?.name || this.i18nService.t('preset.empty');
+  }
+
+  getItemTypeLabel(itemType: string) {
+    switch (itemType) {
+      case ItemTypeEnum.weapon:
+        return this.i18nService.t('calculator.slots.weapon');
+      case ItemTypeEnum.leftWeapon:
+        return this.i18nService.t('calculator.slots.leftWeapon');
+      case ItemTypeEnum.shield:
+        return this.i18nService.t('calculator.slots.shield');
+      case ItemTypeEnum.headUpper:
+        return this.i18nService.t('calculator.slots.headUpper');
+      case ItemTypeEnum.headMiddle:
+        return this.i18nService.t('calculator.slots.headMiddle');
+      case ItemTypeEnum.headLower:
+        return this.i18nService.t('calculator.slots.headLower');
+      case ItemTypeEnum.armor:
+        return this.i18nService.t('calculator.slots.armor');
+      case ItemTypeEnum.garment:
+        return this.i18nService.t('calculator.slots.garment');
+      case ItemTypeEnum.boot:
+        return this.i18nService.t('calculator.slots.boot');
+      case ItemTypeEnum.accRight:
+        return this.i18nService.t('calculator.slots.accRight');
+      case ItemTypeEnum.accLeft:
+        return this.i18nService.t('calculator.slots.accLeft');
+      case ItemTypeEnum.costumeEnchantUpper:
+        return this.i18nService.t('calculator.slots.upperEnchant');
+      case ItemTypeEnum.costumeEnchantMiddle:
+        return this.i18nService.t('calculator.slots.middleEnchant');
+      case ItemTypeEnum.costumeEnchantLower:
+        return this.i18nService.t('calculator.slots.lowerEnchant');
+      case ItemTypeEnum.costumeEnchantGarment:
+        return this.i18nService.t('calculator.slots.garmentEnchant');
+      case ItemTypeEnum.costumeEnchantGarment4:
+        return this.i18nService.t('calculator.slots.garmentEnchant4');
+      case ItemTypeEnum.shadowWeapon:
+        return this.i18nService.t('calculator.slots.shadowWeapon');
+      case ItemTypeEnum.shadowArmor:
+        return this.i18nService.t('calculator.slots.shadowArmor');
+      case ItemTypeEnum.shadowShield:
+        return this.i18nService.t('calculator.slots.shadowShield');
+      case ItemTypeEnum.shadowBoot:
+        return this.i18nService.t('calculator.slots.shadowBoot');
+      case ItemTypeEnum.shadowEarring:
+        return this.i18nService.t('calculator.slots.shadowEarring');
+      case ItemTypeEnum.shadowPendant:
+        return this.i18nService.t('calculator.slots.shadowPendant');
+      default:
+        return itemType;
+    }
   }
 
   removePreset(targetPresetLabel: string) {
@@ -185,8 +238,8 @@ export class PresetTableComponent implements OnInit, OnDestroy {
 
     this.messageService.add({
       severity: 'success',
-      summary: 'Confirmed',
-      detail: `"${targetPresetLabel}" was removed.`,
+      summary: this.i18nService.t('toast.confirmed'),
+      detail: this.i18nService.t('preset.removed', { name: targetPresetLabel }),
     });
   }
 
@@ -194,7 +247,7 @@ export class PresetTableComponent implements OnInit, OnDestroy {
     const preset = this.getCurrentPreset();
     if (!preset) return;
 
-    this.waitConfirm(`Delete "${preset.value}" ?`).then((isConfirm) => {
+    this.waitConfirm(this.i18nService.t('preset.confirmDelete', { name: preset.value })).then((isConfirm) => {
       if (isConfirm) {
         this.removePreset(preset.value);
       }

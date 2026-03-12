@@ -44,6 +44,7 @@ import {
   toUpsertPresetModel,
   waitRxjs,
 } from 'src/app/utils';
+import { I18nService } from 'src/app/i18n/i18n.service';
 import { environment } from 'src/environments/environment';
 import { getClassDropdownList } from '../../../jobs/_class-list';
 import { ChanceModel } from '../../../models/chance-model';
@@ -112,6 +113,32 @@ const monsterTypes = [
   ['Boss', 'boss'],
   ['Normal', 'normal'],
 ];
+
+const compareItemLabelMap: Partial<Record<ItemTypeEnum, string>> = {
+  [ItemTypeEnum.weapon]: 'calculator.slots.weapon',
+  [ItemTypeEnum.leftWeapon]: 'calculator.slots.leftWeapon',
+  [ItemTypeEnum.shield]: 'calculator.slots.shield',
+  [ItemTypeEnum.headUpper]: 'calculator.slots.headUpper',
+  [ItemTypeEnum.headMiddle]: 'calculator.slots.headMiddle',
+  [ItemTypeEnum.headLower]: 'calculator.slots.headLower',
+  [ItemTypeEnum.armor]: 'calculator.slots.armor',
+  [ItemTypeEnum.garment]: 'calculator.slots.garment',
+  [ItemTypeEnum.boot]: 'calculator.slots.boot',
+  [ItemTypeEnum.accRight]: 'calculator.slots.accRight',
+  [ItemTypeEnum.accLeft]: 'calculator.slots.accLeft',
+  [ItemTypeEnum.costumeEnchantUpper]: 'calculator.slots.upperEnchant',
+  [ItemTypeEnum.costumeEnchantMiddle]: 'calculator.slots.middleEnchant',
+  [ItemTypeEnum.costumeEnchantLower]: 'calculator.slots.lowerEnchant',
+  [ItemTypeEnum.costumeEnchantGarment]: 'calculator.slots.garmentEnchant',
+  [ItemTypeEnum.costumeEnchantGarment2]: 'calculator.slots.garmentEnchant2',
+  [ItemTypeEnum.costumeEnchantGarment4]: 'calculator.slots.garmentEnchant4',
+  [ItemTypeEnum.shadowWeapon]: 'calculator.slots.shadowWeapon',
+  [ItemTypeEnum.shadowArmor]: 'calculator.slots.shadowArmor',
+  [ItemTypeEnum.shadowShield]: 'calculator.slots.shadowShield',
+  [ItemTypeEnum.shadowBoot]: 'calculator.slots.shadowBoot',
+  [ItemTypeEnum.shadowEarring]: 'calculator.slots.shadowEarring',
+  [ItemTypeEnum.shadowPendant]: 'calculator.slots.shadowPendant',
+};
 
 const HideHpSp = {
   [ClassName.SpiritHandler]: environment.production,
@@ -307,6 +334,7 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
   showCompareItemMap = {} as any;
   compareItemNames = [] as ItemTypeEnum[];
   compareItemList: (keyof typeof ItemTypeEnum)[] = [...AllowedCompareItemTypes];
+  compareItemOptions: DropdownModel[] = [];
 
   ref: DynamicDialogRef | undefined;
   monsterRef: DynamicDialogRef | undefined;
@@ -324,12 +352,14 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private dialogService: DialogService,
+    private readonly i18nService: I18nService,
     private readonly layoutService: LayoutService,
   ) { }
 
   ngOnInit() {
     this.initLoadItemsBtn();
     this.initCalcTableColumns();
+    this.initCompareItemOptions();
     this.initData()
       .pipe(
         switchMap(() => this.loadItemSet(localStorage.getItem('ro-set'))),
@@ -345,6 +375,13 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
       this.hideBasicAtk = c.hideBasicAtk;
     });
     this.allSubs.push(laySub);
+
+    const languageSub = this.i18nService.language$.subscribe(() => {
+      this.initLoadItemsBtn();
+      this.initCalcTableColumns();
+      this.initCompareItemOptions();
+    });
+    this.allSubs.push(languageSub);
 
     // Subscribe to item search dialog trigger
     const itemSearchSub = this.layoutService.itemSearchOpen$.subscribe(() => {
@@ -593,14 +630,14 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
       //   },
       // },
       {
-        label: 'Update',
+        label: this.i18nService.t('common.update'),
         icon: PrimeIcons.SYNC,
         command: () => {
           this.updatePreset(this.selectedPreset);
         },
       },
       {
-        label: 'Delete',
+        label: this.i18nService.t('common.delete'),
         icon: PrimeIcons.TRASH,
         command: () => {
           this.deletePreset();
@@ -610,16 +647,18 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
   }
 
   private initCalcTableColumns() {
+    const selectedFields = this.selectedColumns?.map((column) => column.field) || [];
+
     this.cols = [
-      { field: 'health', header: 'HP', default: true },
-      { field: 'monsterClass', header: 'Class' },
+      { field: 'health', header: this.i18nService.t('calculator.summary.hp').replace(':', ''), default: true },
+      { field: 'monsterClass', header: this.i18nService.t('common.class') },
       { field: 'skillMinDamage', header: 'SkillMin', default: true },
       { field: 'skillMaxDamage', header: 'SkillMax', default: true },
       { field: 'skillDps', header: 'DPS', default: true },
       { field: 'skillHitKill', header: 'HitKill', default: true },
       { field: 'skillCriRateToMonster', header: 'Cri%' },
-      { field: 'skillAccuracy', header: 'Accuracy' },
-      { field: 'skillTotalPene', header: 'Penetration' },
+      { field: 'skillAccuracy', header: this.i18nService.t('calculator.battle.accuracy').replace(':', '') },
+      { field: 'skillTotalPene', header: this.i18nService.t('calculator.battle.penetration').replace(':', '') },
       // { field: 'hitRate', header: 'Accuracy' },
       { field: 'accuracy', header: 'BasicAccuracy' },
       { field: 'totalPene', header: 'BasicPenetration' },
@@ -631,6 +670,12 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
     ];
     const availableCols = new Map(this.cols.map((a) => [a.field, a]));
 
+    if (selectedFields.length > 0) {
+      const selectedFieldSet = new Set(selectedFields);
+      this.selectedColumns = this.cols.filter((column) => selectedFieldSet.has(column.field));
+      return;
+    }
+
     const cached = this.getCachedBattleColNames()
       .map((col) => availableCols.get(col))
       .filter(Boolean);
@@ -641,6 +686,13 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
 
     const defaultCols = [...this.cols.filter((a) => a.default).map((a) => a)];
     this.selectedColumns = defaultCols;
+  }
+
+  private initCompareItemOptions() {
+    this.compareItemOptions = AllowedCompareItemTypes.map((itemType) => ({
+      label: this.i18nService.t(compareItemLabelMap[itemType] || itemType),
+      value: itemType,
+    }));
   }
 
   private prepare(calculator: Calculator, compareModel?: any) {
@@ -1057,7 +1109,7 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
     return new Promise((res) => {
       this.confirmationService.confirm({
         message: message,
-        header: 'Confirmation',
+        header: this.i18nService.t('common.confirmation'),
         icon: icon || 'pi pi-exclamation-triangle',
         accept: () => {
           res(true);
@@ -1102,8 +1154,8 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
 
         this.messageService.add({
           severity: 'success',
-          summary: 'Confirmed',
-          detail: `"${name}" was added.`,
+          summary: this.i18nService.t('toast.confirmed'),
+          detail: this.i18nService.t('toast.presetAdded', { name }),
         });
       });
   }
@@ -1122,8 +1174,8 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
     const currentPreset = currentPresets.find((a) => a.value === name);
     if (currentPreset) {
       this.confirmationService.confirm({
-        message: `Update "${name}" ?`,
-        header: 'Confirmation',
+        message: this.i18nService.t('calculator.confirm.updatePreset', { name }),
+        header: this.i18nService.t('common.confirmation'),
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
           this.isInProcessingPreset = true;
@@ -1139,8 +1191,8 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
               finalize(() => {
                 this.messageService.add({
                   severity: 'info',
-                  summary: 'Confirmed',
-                  detail: `"${name}" was updated.`,
+                  summary: this.i18nService.t('toast.confirmed'),
+                  detail: this.i18nService.t('toast.presetUpdated', { name }),
                 });
                 this.isInProcessingPreset = false;
               }),
@@ -1165,8 +1217,8 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
     const selected = this.getPresetList().find((a) => a.value === targePreset);
     if (selected?.['model']) {
       this.confirmationService.confirm({
-        message: `Load "${targePreset}" ?`,
-        header: 'Confirmation',
+        message: this.i18nService.t('calculator.confirm.loadPreset', { name: targePreset }),
+        header: this.i18nService.t('common.confirmation'),
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
           this.isInProcessingPreset = true;
@@ -1179,8 +1231,8 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
               finalize(() => {
                 this.messageService.add({
                   severity: 'success',
-                  summary: 'Successed',
-                  detail: `"${targePreset}" was loaded.`,
+                  summary: this.i18nService.t('toast.success'),
+                  detail: this.i18nService.t('toast.loaded', { name: targePreset }),
                 });
                 if (presetName) this.selectedPreset = presetName;
                 this.isInProcessingPreset = false;
@@ -1204,7 +1256,7 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
       width: '80vw',
       height: '90vh',
       contentStyle: { overflow: 'auto' },
-      header: 'Preset Management',
+      header: this.i18nService.t('calculator.dialogs.presetManagement'),
       baseZIndex: 10000,
       showHeader: true,
       data: {
@@ -2312,7 +2364,7 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
 
   onClickMonster() {
     this.monsterRef = this.dialogService.open(MonsterDataViewComponent, {
-      header: 'Select a Product',
+      header: this.i18nService.t('dialogs.selectMonster'),
       width: '75%',
       height: '90%',
       showHeader: false,
@@ -2339,7 +2391,7 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
     const nextJobId = JobPromotionMapper[this.model?.class];
     if (!nextJobId) return;
 
-    this.waitConfirm(`Change to "${ClassID[nextJobId]}" with current equipment ?`).then((isConfirm) => {
+    this.waitConfirm(this.i18nService.t('calculator.confirm.changeJob', { name: ClassID[nextJobId] })).then((isConfirm) => {
       if (!isConfirm) return;
 
       this.saveCurrentStateItemset();
@@ -2352,14 +2404,14 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
           tap(() => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Job Changed',
+              summary: this.i18nService.t('toast.jobChanged'),
             });
             return waitRxjs();
           }),
           catchError((err) => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Failed',
+              summary: this.i18nService.t('toast.failed'),
               detail: `${err}`,
             });
 
@@ -2393,7 +2445,7 @@ export class RoCalculatorComponent implements OnInit, OnDestroy {
   private handleAPIError(err: any) {
     this.messageService.add({
       severity: 'error',
-      summary: 'Error',
+      summary: this.i18nService.t('toast.error'),
       detail: ToErrorDetail(err),
     });
 

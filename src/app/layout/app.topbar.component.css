@@ -28,3 +28,8 @@
 .layout-topbar button i[class*="pi pi-"] {
   font-size: 1.25rem !important; /* Equivalent to text-xl */
 }
+
+:host ::ng-deep .topbar-language-dropdown {
+  width: 12rem;
+  margin-right: 0.5rem;
+}

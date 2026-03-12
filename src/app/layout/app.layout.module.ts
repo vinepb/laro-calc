@@ -22,7 +22,9 @@ import { DialogModule } from 'primeng/dialog';
 import { ChipModule } from 'primeng/chip';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
+import { I18nModule } from '../i18n/i18n.module';
 
 @NgModule({
   declarations: [
@@ -51,6 +53,8 @@ import { ToastModule } from 'primeng/toast';
     ChipModule,
     TabMenuModule,
     ConfirmDialogModule,
+    DropdownModule,
+    I18nModule,
     ToastModule,
   ],
   exports: [AppLayoutComponent],

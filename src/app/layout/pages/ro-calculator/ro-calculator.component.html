@@ -32,12 +32,12 @@
         <div class="grid grid-nogutter">
           <div class="col-12">
             <div class="p-inputgroup">
-              <input #presetName [autocomplete]="false" type="text" pInputText placeholder="Name" />
+              <input #presetName [autocomplete]="false" type="text" pInputText [placeholder]="'calculator.preset.namePlaceholder' | t" />
               <button
                 type="button"
                 class="p-button-success"
                 pButton
-                label="Save"
+                [label]="'common.save' | t"
                 [loading]="isInProcessingPreset"
                 [disabled]="!presetName.value || isInProcessingPreset"
                 (click)="updatePreset(presetName.value)"
@@ -52,7 +52,7 @@
                 [options]="preSets"
                 [filter]="true"
                 filterBy="label"
-                placeholder="Presets"
+                [placeholder]="'calculator.preset.presetsPlaceholder' | t"
                 scrollHeight="350px"
                 [(ngModel)]="selectedPreset"
               >
@@ -72,7 +72,7 @@
               <p-splitButton
                 styleClass="p-button-help"
                 icon="pi pi-download"
-                label="Load"
+                [label]="'common.load' | t"
                 (onClick)="loadPreset()"
                 [disabled]="!selectedPreset || isInProcessingPreset"
                 [model]="loadBtnItems"
@@ -82,7 +82,7 @@
 
           <div class="col-12">
             <div class="p-inputgroup dropdown-joblist">
-              <span class="p-inputgroup-addon" style="width: 80px">Class</span>
+              <span class="p-inputgroup-addon" style="width: 80px">{{ 'common.class' | t }}</span>
               <p-dropdown
                 inputId="character"
                 [autoDisplayFirst]="false"
@@ -91,7 +91,7 @@
                 [filter]="true"
                 filterBy="label"
                 [(ngModel)]="model.class"
-                placeholder="Class"
+                [placeholder]="'common.class' | t"
                 scrollHeight="350px"
                 [disabled]="isInProcessingPreset"
                 (onChange)="onClassChange()"
@@ -113,7 +113,7 @@
           </div>
           <div class="col">
             <div class="p-inputgroup">
-              <span class="p-inputgroup-addon" style="width: 80px">Level</span>
+              <span class="p-inputgroup-addon" style="width: 80px">{{ 'common.level' | t }}</span>
               <p-dropdown
                 inputId="level"
                 [autoDisplayFirst]="false"
@@ -128,18 +128,18 @@
             </div>
           </div>
           <div class="col-fixed">
-            <button
-              type="button"
-              class="p-button-warning"
-              pButton
-              label="Up Class"
-              [disabled]="!canPromote || isInProcessingPreset"
-              (click)="onJobPromotionClick()"
-            ></button>
+              <button
+                type="button"
+                class="p-button-warning"
+                pButton
+                [label]="'calculator.button.upClass' | t"
+                [disabled]="!canPromote || isInProcessingPreset"
+                (click)="onJobPromotionClick()"
+              ></button>
           </div>
           <div class="col-12">
             <div class="p-inputgroup">
-              <span class="p-inputgroup-addon" style="width: 80px">Job</span>
+              <span class="p-inputgroup-addon" style="width: 80px">{{ 'common.job' | t }}</span>
               <p-dropdown
                 inputId="jobLevel"
                 [autoDisplayFirst]="false"
@@ -155,14 +155,14 @@
           </div>
           <div class="col-12">
             <span class="p-inputgroup-addon"
-              >Status:
+              >{{ 'common.status' | t }}:
               <span [className]="availablePoints < 0 ? 'ml-2 summary_monster_value px-1 font-semibold' : 'ml-2'">
                 {{ availablePoints }}
                 <span [hidden]="!appropriateLevel">(Lv {{ appropriateLevel > 200 ? 'x' : appropriateLevel }})</span>
               </span>
 
               <span [hidden]="!isAllowTraitStat"
-                >, Trait:
+                >, {{ 'common.trait' | t }}:
                 <span [className]="availableTraitPoints < 0 ? ' summary_monster_value px-1 font-semibold' : ''">
                   {{ availableTraitPoints }}
                   <span [hidden]="!appropriateLevelForTrait">(Lv {{ appropriateLevelForTrait > 300 ? 'x' : appropriateLevelForTrait }})</span>
@@ -333,7 +333,7 @@
               <div class="col-6">
                 <div class="grid grid-nogutter">
                   <div class="col-12">
-                    Alt+Q Atk:
+                    {{ 'calculator.summary.altQAtk' | t }}
                     <span class="font-semibold px-1 summary_stat_atk">
                       {{ totalSummary?.calc?.totalStatusAtk || 0 }} +
                       {{
@@ -345,52 +345,53 @@
                     </span>
                   </div>
                   <div [hidden]="env.production" class="col-12">
-                    Equip Atk:
+                    {{ 'calculator.summary.equipAtk' | t }}
                     <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.atk || 0 }} + {{ totalSummary?.atkPercent || 0 }} %</span>
                   </div>
                   <div class="col-6">
-                    P.Atk:
+                    {{ 'calculator.summary.pAtk' | t }}
                     <span class="font-semibold px-1 summary_stat_atk2">{{ totalSummary?.dmg?.pAtk || 0 }}</span>
                   </div>
                   <div class="col-6">
-                    C.Rate:
+                    {{ 'calculator.summary.cRate' | t }}
                     <span class="font-semibold px-1 summary_stat_atk2">{{ totalSummary?.dmg?.cRate || 0 }}</span>
                   </div>
                   <div class="col-12">
-                    ASPD:
+                    {{ 'calculator.summary.aspd' | t }}
                     <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.calc?.totalAspd || 0 }}</span>
-                    <span class="font-semibold px-1 summary_highlight">( {{ totalSummary?.calc?.hitPerSecs || 0 }} Hits/s )</span>
+                    <span class="font-semibold px-1 summary_highlight">( {{ totalSummary?.calc?.hitPerSecs || 0 }} {{ 'calculator.summary.hitsPerSecond' | t }} )</span>
                   </div>
                   <div class="col-12">
-                    Hit:
+                    {{ 'calculator.summary.hit' | t }}
                     <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.calc?.totalHit || 0 }}</span>
-                    Perfect:
+                    {{ 'calculator.summary.perfect' | t }}
                     <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.calc?.totalPerfectHit || 0 }} %</span>
                   </div>
                   <div class="col-12">
-                    CriRate:
+                    {{ 'calculator.summary.criRate' | t }}
                     <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.calc?.totalCri || 0 }} %</span>
-                    Dmg: <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.criDmg || 0 }} %</span>
+                    {{ 'calculator.summary.dmg' | t }} <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.criDmg || 0 }} %</span>
                   </div>
                   <div class="col-12">
-                    Melee:
-                    <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.melee || 0 }} %</span> Range:
+                    {{ 'calculator.summary.melee' | t }}
+                    <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.melee || 0 }} %</span>
+                    {{ 'calculator.summary.range' | t }}
                     <Span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.range || 0 }} %</Span>
                   </div>
                   <div class="col-12">
-                    Def:
+                    {{ 'calculator.summary.def' | t }}
                     <span class="font-semibold px-1 summary_stat_def">{{ totalSummary?.calc?.softDef || 0 }} + {{ totalSummary?.calc?.def || 0 }}</span>
-                    Res:
+                    {{ 'calculator.summary.res' | t }}
                     <span class="font-semibold px-1 summary_stat_def2">{{ totalSummary?.calc?.res || 0 }}</span>
                   </div>
                   <div class="col-12">
-                    Mdef:
+                    {{ 'calculator.summary.mdef' | t }}
                     <span class="font-semibold px-1 summary_stat_def">{{ totalSummary?.calc?.softMdef || 0 }} + {{ totalSummary?.calc?.mdef || 0 }}</span>
-                    MRes:
+                    {{ 'calculator.summary.mres' | t }}
                     <span class="font-semibold px-1 summary_stat_def2">{{ totalSummary?.calc?.mres || 0 }}</span>
                   </div>
                   <div class="col-12">
-                    Flee:
+                    {{ 'calculator.summary.flee' | t }}
                     <span class="font-semibold px-1 summary_stat_def">{{ totalSummary?.calc?.totalFlee || 0 }} + {{ totalSummary?.calc?.totalPerfectDodge || 0 }}</span>
                   </div>
                 </div>
@@ -398,7 +399,7 @@
               <div class="col-6">
                 <div class="grid grid-nogutter mx-1">
                   <div class="col-12">
-                    Alt+Q Matk:
+                    {{ 'calculator.summary.altQMatk' | t }}
                     <span class="font-semibold px-1 summary_stat_matk"
                       >{{ totalSummary?.calc?.totalStatusMatk || 0 }} +
                       {{
@@ -410,36 +411,36 @@
                     >
                   </div>
                   <div [hidden]="env.production" class="col-12">
-                    Equip Matk:
+                    {{ 'calculator.summary.equipMatk' | t }}
                     <span class="font-semibold px-1 summary_stat_matk">{{ totalSummary?.matk || 0 }} + {{ totalSummary?.matkPercent || 0 }} %</span>
                   </div>
                   <div class="col-12">
-                    Matk
+                    {{ 'calculator.summary.matk' | t }}
                     <span class="font-semibold px-1 summary_stat_matk">{{ totalSummary?.matkPercent || 0 }} %</span>
-                    S.Matk:
+                    {{ 'calculator.summary.sMatk' | t }}
                     <span class="font-semibold px-1 summary_stat_matk2">{{ totalSummary?.dmg?.sMatk || 0 }}</span>
                   </div>
                   <div class="col-12">
-                    After Cast Delay:
+                    {{ 'calculator.summary.afterCastDelay' | t }}
                     <span class="font-semibold px-1 summary_stat_matk">{{ totalSummary?.acd || 0 }}</span>
                   </div>
                   <div class="col-12">
-                    Fixed Cast Time:
+                    {{ 'calculator.summary.fixedCastTime' | t }}
                     <span class="font-semibold px-1 summary_stat_matk">{{ totalSummary?.fct || 0 }}</span>
                   </div>
                   <div class="col-12">
-                    Variable Cast Time:
+                    {{ 'calculator.summary.variableCastTime' | t }}
                     <span class="font-semibold px-1 summary_stat_matk">{{ totalSummary?.vct || 0 }}</span>
                   </div>
                   <div class="col-12">
-                    Dex2 Int1:
+                    {{ 'calculator.summary.dex2Int1' | t }}
                     <span class="font-semibold px-1 summary_stat_yellow">{{ totalSummary?.calc?.dex2int1 || 0 }}</span>
-                    <span [hidden]="totalSummary?.calc?.to530 <= 0">{{ '( Need ' + totalSummary?.calc?.to530 + ' more )' }}</span>
+                    <span [hidden]="totalSummary?.calc?.to530 <= 0">{{ 'calculator.summary.needMore' | t : { value: totalSummary?.calc?.to530 } }}</span>
                   </div>
                   <div class="col-12 px-1 border_default hp-sp-section" [hidden]="hideHpSp[selectedCharacter?.className]">
                     <div class="grid grid-nogutter">
                       <div class="col-12 flex gap-1">
-                        HP:
+                        {{ 'calculator.summary.hp' | t }}
                         <span class="font-semibold px-1 summary_stat_yellow">{{ totalSummary?.calc?.maxHp || 0 | number }}</span>
                         <!-- <p-cascadeSelect
                           [(ngModel)]="model.rawOptionTxts[itemOptionNumber.X_HP]"
@@ -455,7 +456,7 @@
                         ></p-cascadeSelect> -->
                       </div>
                       <div class="col-12 flex gap-1">
-                        SP:
+                        {{ 'calculator.summary.sp' | t }}
                         <span class="font-semibold px-1 summary_stat_yellow">{{ totalSummary?.calc?.maxSp || 0 | number }}</span>
                         <!-- <p-cascadeSelect
                           [(ngModel)]="model.rawOptionTxts[itemOptionNumber.X_SP]"
@@ -477,14 +478,16 @@
               </div>
               <div class="col-12 item_label_compare">
                 <p-multiSelect
-                  [options]="compareItemList"
+                  [options]="compareItemOptions"
+                  optionLabel="label"
+                  optionValue="value"
                   [(ngModel)]="compareItemNames"
                   [showClear]="true"
                   [showHeader]="false"
                   [showToggleAll]="false"
                   scrollHeight="400px"
-                  selectedItemsLabel="{0} slot selected"
-                  placeholder="Enable item slot to compare"
+                  [selectedItemsLabel]="'calculator.compare.selectedSlots' | t"
+                  [placeholder]="'calculator.compare.enableItemSlot' | t"
                   [maxSelectedLabels]="6"
                   (onChange)="onListItemComparingChange()"
                   (onClear)="onListItemComparingChange(true)"
@@ -501,7 +504,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'weapon'"
-          [placeholder]="'Weapon'"
+          [placeholder]="'calculator.slots.weapon' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="weaponList"
@@ -533,7 +536,7 @@
               [(ngModel)]="model.propertyAtk"
               [disabled]="!model.weapon"
               [showClear]="true"
-              placeholder="Converter"
+              [placeholder]="'calculator.slots.converter' | t"
               scrollHeight="300px"
               (onChange)="onPropertyAtkChange()"
             >
@@ -567,7 +570,7 @@
               scrollHeight="350px"
               [(ngModel)]="model.ammo"
               (onChange)="onSelectItem('ammo', $event.value)"
-              placeholder="Ammo"
+              [placeholder]="'calculator.slots.ammo' | t"
               [disabled]="!model.weapon"
             >
               <ng-template let-item pTemplate="selectedItem">
@@ -595,7 +598,7 @@
       <div class="col-12" [hidden]="!model.weapon || !showLeftWeapon || !!model.shield">
         <app-equipment
           [itemType]="'leftWeapon'"
-          [placeholder]="'leftWeapon'"
+          [placeholder]="'calculator.slots.leftWeapon' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="leftWeaponList"
@@ -627,7 +630,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'weapon'"
-          [placeholder]="'Weapon'"
+          [placeholder]="'calculator.slots.weapon' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="weaponList"
@@ -660,7 +663,7 @@
       <div class="col-12" [hidden]="!model.weapon || hiddenMap.shield || !!model.leftWeapon">
         <app-equipment
           [itemType]="'shield'"
-          [placeholder]="'Shield'"
+          [placeholder]="'calculator.slots.shield' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="shieldList"
@@ -689,7 +692,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'headUpper'"
-          [placeholder]="'Upper'"
+          [placeholder]="'calculator.slots.headUpper' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="headUpperList"
@@ -716,7 +719,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'headUpper'"
-          [placeholder]="'Upper'"
+          [placeholder]="'calculator.slots.headUpper' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="headUpperList"
@@ -744,7 +747,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'headMiddle'"
-          [placeholder]="'Middle'"
+          [placeholder]="'calculator.slots.headMiddle' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="headMiddleList"
@@ -770,7 +773,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'headMiddle'"
-          [placeholder]="'Middle'"
+          [placeholder]="'calculator.slots.headMiddle' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="headMiddleList"
@@ -797,7 +800,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'headLower'"
-          [placeholder]="'Lower'"
+          [placeholder]="'calculator.slots.headLower' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="headLowerList"
@@ -818,7 +821,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'headLower'"
-          [placeholder]="'Lower'"
+          [placeholder]="'calculator.slots.headLower' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="headLowerList"
@@ -839,7 +842,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'armor'"
-          [placeholder]="'Armor'"
+          [placeholder]="'calculator.slots.armor' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="armorList"
@@ -867,7 +870,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'armor'"
-          [placeholder]="'Armor'"
+          [placeholder]="'calculator.slots.armor' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="armorList"
@@ -896,7 +899,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'garment'"
-          [placeholder]="'Garment'"
+          [placeholder]="'calculator.slots.garment' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="garmentList"
@@ -923,7 +926,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'garment'"
-          [placeholder]="'Garment'"
+          [placeholder]="'calculator.slots.garment' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="garmentList"
@@ -951,7 +954,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'boot'"
-          [placeholder]="'Boot'"
+          [placeholder]="'calculator.slots.boot' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="bootList"
@@ -975,7 +978,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'Boot'"
-          [placeholder]="'boot'"
+          [placeholder]="'calculator.slots.boot' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="bootList"
@@ -1000,8 +1003,8 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'accRight'"
-          [placeholder]="'AccRight'"
-          [overlayLabel]="'Right'"
+          [placeholder]="'calculator.slots.accRight' | t"
+          [overlayLabel]="'calculator.slots.right' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="accRightList"
@@ -1028,7 +1031,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'accRight'"
-          [placeholder]="'AccRight'"
+          [placeholder]="'calculator.slots.accRight' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="accRightList"
@@ -1056,8 +1059,8 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'accLeft'"
-          [placeholder]="'AccLeft'"
-          [overlayLabel]="'Left'"
+          [placeholder]="'calculator.slots.accLeft' | t"
+          [overlayLabel]="'calculator.slots.left' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="accLeftList"
@@ -1083,7 +1086,7 @@
       <div class="col-12">
         <app-equipment
           [itemType]="'accLeft'"
-          [placeholder]="'AccLeft'"
+          [placeholder]="'calculator.slots.accLeft' | t"
           [items]="items"
           [mapEnchant]="mapEnchant"
           [itemList]="accLeftList"
@@ -1112,7 +1115,7 @@
         <div class="col-3">
           <app-equipment-cos-enchant
             [itemType]="'costumeUpper'"
-            [placeholder]="'Costume Upper'"
+            [placeholder]="'calculator.slots.costumeUpper' | t"
             [itemList]="costumeUpperList"
             [(itemId)]="model.costumeUpper"
             (selectItemChange)="onSelectItem('costumeUpper', $event.itemId)"
@@ -1121,7 +1124,7 @@
         <div class="col-3">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantUpper'"
-            [placeholder]="'Upper Enchant'"
+            [placeholder]="'calculator.slots.upperEnchant' | t"
             [itemList]="costumeEnhUpperList"
             [(itemId)]="model.costumeEnchantUpper"
             (selectItemChange)="onSelectItem('costumeEnchantUpper', $event.itemId)"
@@ -1140,7 +1143,7 @@
             [(ngModel)]="model.pet"
             [showClear]="true"
             (onChange)="onSelectItem('pet', $event.value)"
-            placeholder="Pet"
+            [placeholder]="'calculator.slots.pet' | t"
           >
             <ng-template let-item pTemplate="selectedItem">
               <div class="flex gap-1 item_template" *ngIf="model.pet">
@@ -1163,7 +1166,7 @@
         <div class="col-4">
           <app-equipment-cos-enchant
             [itemType]="'costumeMiddle'"
-            [placeholder]="'Costume Middle'"
+            [placeholder]="'calculator.slots.costumeMiddle' | t"
             [itemList]="costumeMiddleList"
             [(itemId)]="model.costumeMiddle"
             (selectItemChange)="onSelectItem('costumeMiddle', $event.itemId)"
@@ -1172,7 +1175,7 @@
         <div class="col-4">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantMiddle'"
-            [placeholder]="'Middle Enchant'"
+            [placeholder]="'calculator.slots.middleEnchant' | t"
             [itemList]="costumeEnhMiddleList"
             [(itemId)]="model.costumeEnchantMiddle"
             (selectItemChange)="onSelectItem('costumeEnchantMiddle', $event.itemId)"
@@ -1185,7 +1188,7 @@
         <div class="col-4">
           <app-equipment-cos-enchant
             [itemType]="'costumeLower'"
-            [placeholder]="'Costume Lower'"
+            [placeholder]="'calculator.slots.costumeLower' | t"
             [itemList]="costumeLowerList"
             [(itemId)]="model.costumeLower"
             (selectItemChange)="onSelectItem('costumeLower', $event.itemId)"
@@ -1194,7 +1197,7 @@
         <div class="col-4">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantLower'"
-            [placeholder]="'Lower Enchant'"
+            [placeholder]="'calculator.slots.lowerEnchant' | t"
             [itemList]="costumeEnhLowerList"
             [(itemId)]="model.costumeEnchantLower"
             (selectItemChange)="onSelectItem('costumeEnchantLower', $event.itemId)"
@@ -1207,7 +1210,7 @@
         <div class="col-3">
           <app-equipment-cos-enchant
             [itemType]="'costumeGarment'"
-            [placeholder]="'Costume Garment'"
+            [placeholder]="'calculator.slots.costumeGarment' | t"
             [itemList]="costumeGarmentList"
             [(itemId)]="model.costumeGarment"
             (selectItemChange)="onSelectItem('costumeGarment', $event.itemId)"
@@ -1216,7 +1219,7 @@
         <div class="col-3">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantGarment'"
-            [placeholder]="'Garment Enchant'"
+            [placeholder]="'calculator.slots.garmentEnchant' | t"
             [itemList]="costumeEnhGarmentList"
             [(itemId)]="model.costumeEnchantGarment"
             (selectItemChange)="onSelectItem('costumeEnchantGarment', $event.itemId)"
@@ -1225,7 +1228,7 @@
         <div class="col-3">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantGarment2'"
-            [placeholder]="'Garment Enchant 2'"
+            [placeholder]="'calculator.slots.garmentEnchant2' | t"
             [itemList]="costumeEnhGarment2List"
             [(itemId)]="model.costumeEnchantGarment2"
             (selectItemChange)="onSelectItem('costumeEnchantGarment2', $event.itemId)"
@@ -1234,7 +1237,7 @@
         <div class="col-3">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantGarment4'"
-            [placeholder]="'Garment Enchant 4'"
+            [placeholder]="'calculator.slots.garmentEnchant4' | t"
             [itemList]="costumeEnhGarment4List"
             [(itemId)]="model.costumeEnchantGarment4"
             (selectItemChange)="onSelectItem('costumeEnchantGarment4', $event.itemId)"
@@ -1246,7 +1249,7 @@
         <div class="col-4 item_label_compare" *ngIf="showCompareItemMap.costumeEnchantUpper">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantUpper'"
-            [placeholder]="'Upper Enchant'"
+            [placeholder]="'calculator.slots.upperEnchant' | t"
             [itemList]="costumeEnhUpperList"
             [(itemId)]="model2.costumeEnchantUpper"
             (selectItemChange)="onCompareItemChange()"
@@ -1255,7 +1258,7 @@
         <div class="col-4 item_label_compare" *ngIf="showCompareItemMap.costumeEnchantMiddle">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantMiddle'"
-            [placeholder]="'Middle Enchant'"
+            [placeholder]="'calculator.slots.middleEnchant' | t"
             [itemList]="costumeEnhMiddleList"
             [(itemId)]="model2.costumeEnchantMiddle"
             (selectItemChange)="onCompareItemChange()"
@@ -1264,7 +1267,7 @@
         <div class="col-4 item_label_compare" *ngIf="showCompareItemMap.costumeEnchantLower">
           <app-equipment-cos-enchant
             [itemType]="'costumeEnchantLower'"
-            [placeholder]="'Lower Enchant'"
+            [placeholder]="'calculator.slots.lowerEnchant' | t"
             [itemList]="costumeEnhLowerList"
             [(itemId)]="model2.costumeEnchantLower"
             (selectItemChange)="onCompareItemChange()"
@@ -1274,7 +1277,7 @@
           <div class="col-4" *ngIf="showCompareItemMap.costumeEnchantGarment">
             <app-equipment-cos-enchant
               [itemType]="'costumeEnchantGarment'"
-              [placeholder]="'Garment Enchant'"
+              [placeholder]="'calculator.slots.garmentEnchant' | t"
               [itemList]="costumeEnhGarmentList"
               [(itemId)]="model2.costumeEnchantGarment"
               (selectItemChange)="onCompareItemChange()"
@@ -1283,7 +1286,7 @@
           <div class="col-4" *ngIf="showCompareItemMap.costumeEnchantGarment2">
             <app-equipment-cos-enchant
               [itemType]="'costumeEnchantGarment2'"
-              [placeholder]="'Garment Enchant 2'"
+              [placeholder]="'calculator.slots.garmentEnchant2' | t"
               [itemList]="costumeEnhGarment2List"
               [(itemId)]="model2.costumeEnchantGarment2"
               (selectItemChange)="onCompareItemChange()"
@@ -1292,7 +1295,7 @@
           <div class="col-4" *ngIf="showCompareItemMap.costumeEnchantGarment4">
             <app-equipment-cos-enchant
               [itemType]="'costumeEnchantGarment4'"
-              [placeholder]="'Garment Enchant 4'"
+              [placeholder]="'calculator.slots.garmentEnchant4' | t"
               [itemList]="costumeEnhGarment4List"
               [(itemId)]="model2.costumeEnchantGarment4"
               (selectItemChange)="onCompareItemChange()"
@@ -1309,7 +1312,7 @@
         <div class="col-12 item_label_shadow">
           <app-equipment-shadow
             [itemType]="'shadowWeapon'"
-            [placeholder]="'Shadow Weapon'"
+            [placeholder]="'calculator.slots.shadowWeapon' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowWeaponList"
@@ -1330,7 +1333,7 @@
         <div class="col-12 item_label_shadow">
           <app-equipment-shadow
             [itemType]="'shadowShield'"
-            [placeholder]="'Shadow Shield'"
+            [placeholder]="'calculator.slots.shadowShield' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowShieldList"
@@ -1351,7 +1354,7 @@
         <div class="col-12 item_label_shadow">
           <app-equipment-shadow
             [itemType]="'shadowArmor'"
-            [placeholder]="'Shadow Armor'"
+            [placeholder]="'calculator.slots.shadowArmor' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowArmorList"
@@ -1372,7 +1375,7 @@
         <div class="col-12 item_label_shadow">
           <app-equipment-shadow
             [itemType]="'shadowBoot'"
-            [placeholder]="'Shadow Boot'"
+            [placeholder]="'calculator.slots.shadowBoot' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowBootList"
@@ -1393,7 +1396,7 @@
         <div class="col-12 item_label_shadow">
           <app-equipment-shadow
             [itemType]="'shadowEarring'"
-            [placeholder]="'Shadow Earring'"
+            [placeholder]="'calculator.slots.shadowEarring' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowEarringList"
@@ -1414,7 +1417,7 @@
         <div class="col-12 item_label_shadow">
           <app-equipment-shadow
             [itemType]="'shadowPendant'"
-            [placeholder]="'Shadow Pendant'"
+            [placeholder]="'calculator.slots.shadowPendant' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowPendantList"
@@ -1434,7 +1437,7 @@
         <div class="col-12 item_label_compare" *ngIf="showCompareItemMap.shadowWeapon">
           <app-equipment-shadow
             [itemType]="'shadowWeapon'"
-            [placeholder]="'Shadow Weapon'"
+            [placeholder]="'calculator.slots.shadowWeapon' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowWeaponList"
@@ -1452,7 +1455,7 @@
         <div class="col-12 item_label_compare" *ngIf="showCompareItemMap.shadowShield">
           <app-equipment-shadow
             [itemType]="'shadowShield'"
-            [placeholder]="'Shadow Shield'"
+            [placeholder]="'calculator.slots.shadowShield' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowShieldList"
@@ -1470,7 +1473,7 @@
         <div class="col-12 item_label_compare" *ngIf="showCompareItemMap.shadowArmor">
           <app-equipment-shadow
             [itemType]="'shadowArmor'"
-            [placeholder]="'Shadow Armor'"
+            [placeholder]="'calculator.slots.shadowArmor' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowArmorList"
@@ -1488,7 +1491,7 @@
         <div class="col-12 item_label_compare" *ngIf="showCompareItemMap.shadowBoot">
           <app-equipment-shadow
             [itemType]="'shadowBoot'"
-            [placeholder]="'Shadow Boot'"
+            [placeholder]="'calculator.slots.shadowBoot' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowBootList"
@@ -1506,7 +1509,7 @@
         <div class="col-12 item_label_compare" *ngIf="showCompareItemMap.shadowEarring">
           <app-equipment-shadow
             [itemType]="'shadowEarring'"
-            [placeholder]="'Shadow Earring'"
+            [placeholder]="'calculator.slots.shadowEarring' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowEarringList"
@@ -1524,7 +1527,7 @@
         <div class="col-12 item_label_compare" *ngIf="showCompareItemMap.shadowPendant">
           <app-equipment-shadow
             [itemType]="'shadowPendant'"
-            [placeholder]="'Shadow Pendant'"
+            [placeholder]="'calculator.slots.shadowPendant' | t"
             [items]="items"
             [mapEnchant]="mapEnchant"
             [itemList]="shadowPendantList"
@@ -1546,7 +1549,7 @@
   <!-- Right Side -->
   <div class="p-fluid col-5">
     <p-accordion [multiple]="true" [activeIndex]="[2, 7]">
-      <p-accordionTab header="Consumables" class="consumable">
+      <p-accordionTab [header]="'calculator.accordion.consumables' | t" class="consumable">
         <div class="grid grid-nogutter">
           <!-- Consumable -->
           <div class="col-4">
@@ -1602,12 +1605,12 @@
         </div>
       </p-accordionTab>
 
-      <p-accordionTab header="Skills ***Please upgrade skills as some items require skill upgrades to get bonuses" class="select_skill">
+      <p-accordionTab [header]="('calculator.accordion.skills' | t) + ' ***' + ('calculator.skill.upgradeHint' | t)" class="select_skill">
         <div class="grid grid-nogutter">
           <!--  Buffs -->
           <div class="col-4">
-            <p-tag severity="info" value="Buffs"></p-tag>
-            <span class="skill_debuff pl-2">Red = Debuff monster</span>
+            <p-tag severity="info" [value]="'calculator.skill.buffs' | t"></p-tag>
+            <span class="skill_debuff pl-2">{{ 'calculator.skill.redDebuff' | t }}</span>
             <div class="grid grid-nogutter">
               <div *ngFor="let bishopBuff of skillBuffs; let i = index" class="col-12">
                 <div [ngSwitch]="bishopBuff.inputType">
@@ -1643,7 +1646,7 @@
 
           <!-- Learned Skills -->
           <div class="col-4" [hidden]="passiveSkills.length === 0">
-            <p-tag severity="warning" value="Learn to get bonuses"></p-tag>
+            <p-tag severity="warning" [value]="'calculator.skill.learnBonuses' | t"></p-tag>
             <div class="grid grid-nogutter">
               <div *ngFor="let passiveSkill of passiveSkills; let i = index" class="col-12">
                 <div [ngSwitch]="passiveSkill.inputType">
@@ -1679,7 +1682,7 @@
 
           <!-- Active SKills -->
           <div class="col-4">
-            <p-tag severity="danger" value="Activating Skills/Effects"></p-tag>
+            <p-tag severity="danger" [value]="'calculator.skill.activating' | t"></p-tag>
             <div class="grid grid-nogutter">
               <div *ngFor="let activeSkill of activeSkills; let i = index" class="col-12">
                 <div [ngSwitch]="activeSkill.inputType">
@@ -1715,10 +1718,10 @@
         </div>
       </p-accordionTab>
 
-      <p-accordionTab header="Battle Summary">
+      <p-accordionTab [header]="'calculator.accordion.battleSummary' | t">
         <div class="grid grid-nogutter battle_summary">
           <div class="col-12" [hidden]="!chanceList?.length">
-            <p-fieldset legend="Has a chance" [toggleable]="true">
+            <p-fieldset [legend]="'calculator.chance.legend' | t" [toggleable]="true">
               <div *ngFor="let category of chanceList" class="field-checkbox my-2">
                 <p-checkbox
                   name="group"
@@ -1739,7 +1742,7 @@
             <div class="grid grid-nogutter">
               <div class="col-12">
                 <div class="p-inputgroup">
-                  <span class="p-inputgroup-addon monster_hilight_label">Monster</span>
+                  <span class="p-inputgroup-addon monster_hilight_label">{{ 'common.monster' | t }}</span>
                   <p-dropdown
                     inputId="monsterOpponent"
                     [autoDisplayFirst]="false"
@@ -1791,7 +1794,7 @@
             <div class="grid grid-nogutter" style="position: relative">
               <div class="col-12 skill-selection" [hidden]="isShowSelectableSkillLevel">
                 <div class="p-inputgroup">
-                  <span class="p-inputgroup-addon skill_hilight_label">Skill</span>
+                  <span class="p-inputgroup-addon skill_hilight_label">{{ 'common.skill' | t }}</span>
                   <p-dropdown
                     inputId="skill"
                     [autoDisplayFirst]="false"
@@ -1805,7 +1808,7 @@
               </div>
               <div class="col-12 skill-selection" [hidden]="!isShowSelectableSkillLevel">
                 <div class="p-inputgroup">
-                  <span class="p-inputgroup-addon skill_hilight_label">Skill</span>
+                  <span class="p-inputgroup-addon skill_hilight_label">{{ 'common.skill' | t }}</span>
                   <p-cascadeSelect
                     inputId="skill"
                     [(ngModel)]="model.selectedAtkSkill"
@@ -1858,8 +1861,8 @@
                       [showClear]="true"
                       [showToggleAll]="false"
                       scrollHeight="400px"
-                      selectedItemsLabel="{0} monsters selected"
-                      placeholder="Choose Monsters"
+                      [selectedItemsLabel]="'calculator.compare.selectedMonsters' | t"
+                      [placeholder]="'calculator.monster.chooseMonsters' | t"
                       [maxSelectedLabels]="2"
                       (onChange)="onMonsterListChange()"
                       (onClear)="onMonsterListChange()"
@@ -1876,8 +1879,8 @@
                       [options]="cols"
                       [(ngModel)]="selectedColumns"
                       optionLabel="header"
-                      selectedItemsLabel="{0} columns selected"
-                      placeholder="Choose Columns"
+                      [selectedItemsLabel]="'calculator.compare.selectedColumns' | t"
+                      [placeholder]="'calculator.monster.chooseColumns' | t"
                       [maxSelectedLabels]="5"
                       (onChange)="onSelectedColChange()"
                       (onClear)="onSelectedColChange()"
@@ -1887,7 +1890,7 @@
               </ng-template>
               <ng-template pTemplate="header" let-columns>
                 <tr>
-                  <th>Name</th>
+                  <th>{{ 'common.name' | t }}</th>
                   <th *ngFor="let col of columns">
                     {{ col.header }}
                   </th>
@@ -1906,7 +1909,7 @@
         </div>
       </p-accordionTab>
 
-      <p-accordionTab header="Skill bonus / Multiplier Summary">
+      <p-accordionTab [header]="'calculator.accordion.skillBonusSummary' | t">
         <app-misc-detail
           [elementTable]="elementTable"
           [raceTable]="raceTable"
@@ -1916,11 +1919,11 @@
           [skillMultiplierTable]="skillMultiplierTable"
         ></app-misc-detail>
       </p-accordionTab>
-      <p-accordionTab header="Penetration Summary">
+      <p-accordionTab [header]="'calculator.accordion.penetrationSummary' | t">
         <app-misc-detail [elementTable]="[]" [raceTable]="peneRaceTable" [sizeTable]="[]" [classTable]="peneClassTable" [skillMultiplierTable]="[]"></app-misc-detail>
       </p-accordionTab>
 
-      <p-accordionTab header="Summary">
+      <p-accordionTab [header]="'calculator.accordion.summary' | t">
         <div class="grid grid-nogutter" style="overflow: auto">
           <div class="col-6 json_display">
             <pre [innerHTML]="modelSummary | prettyjson: [true, 3]"></pre>
@@ -1932,7 +1935,7 @@
         </div>
       </p-accordionTab>
 
-      <p-accordionTab header="Equipments Summary">
+      <p-accordionTab [header]="'calculator.accordion.equipmentSummary' | t">
         <div class="grid grid-nogutter">
           <div class="col-6 json_display">
             <pre [innerHTML]="itemSummary | prettyjson: [true, 3]"></pre>
@@ -1943,7 +1946,7 @@
         </div>
       </p-accordionTab>
 
-      <p-accordionTab header="Item Descriptions">
+      <p-accordionTab [header]="'calculator.accordion.itemDescriptions' | t">
         <div class="grid grid-nogutter">
           <div class="col-4">
             <div class="item_label_compare" *ngIf="isEnableCompare && equipCompareItems?.length">
@@ -1984,7 +1987,7 @@
           <div class="col-8">
             <div class="grid grid-nogutter ml-2" style="max-height: 700px; overflow: auto">
               <div class="col-12 json_display">
-                ItemID: {{ itemId }}
+                {{ 'calculator.items.id' | t }}: {{ itemId }}
                 <pre [innerHTML]="itemBonus | prettyjson: [true, 3]"></pre>
               </div>
               <div class="col-12 px-2 py-2" style="color: #000; background-color: #fff" [innerHTML]="itemDescription"></div>

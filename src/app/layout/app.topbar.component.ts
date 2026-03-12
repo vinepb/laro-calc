@@ -3,6 +3,8 @@ import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Subscription } from 'rxjs';
 
+import { AppLanguage } from '../i18n/i18n.types';
+import { I18nService } from '../i18n/i18n.service';
 import { LayoutService } from './service/app.layout.service';
 
 @Component({
@@ -22,18 +24,19 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   visibleInfo: boolean = false;
   visibleReference = false;
 
+  readonly languageOptions = this.i18nService.languageOptions;
   infos = [
-    'Item, monster, and skill data comes from "divine-pride" website',
-    'Change theme using the Config button on the right-center',
-    'Saved data is stored in the browser; clearing browser data will delete it',
-    'Conditions marked as "every skill learning" require clicking upgrade in "Learn to get bonuses" to get bonus; if not available, bonus defaults to Lv MAX',
-    'Options in weapon row are always available and can be used for "What if" scenarios',
-    'My Magical Element in options = Increases magical elemental damage...',
-    'Two-handed weapon comparison does not yet support left-hand changes',
-    'Jobs 61-64, 66-69 may have incorrect bonuses due to missing data',
-    'Tab "Summary" shows what you equipped/which skills you upgraded/all calculations',
-    'Tab "Equipments Summary" shows item bonuses overview',
-    'Tab "Item Descriptions" shows individual item bonuses and descriptions (for verifying correct bonuses)',
+    'topbar.info.itemData',
+    'topbar.info.theme',
+    'topbar.info.savedData',
+    'topbar.info.skillLearning',
+    'topbar.info.itemOptions',
+    'topbar.info.magicalElement',
+    'topbar.info.leftHand',
+    'topbar.info.jobsData',
+    'topbar.info.summary',
+    'topbar.info.summaryEquipment',
+    'topbar.info.itemDescriptions',
   ];
 
   references: { label: string; link: string; writer: string; date?: string; }[] = [
@@ -184,79 +187,79 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
       v: '0.2.2-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
-        "Unused Data Files & Service Cleanup: Removed unused JSON data files and SummaryService (~10MB reduction)",
-        "Deleted unused JSON files: x.json (10MB), x_presetSummaryMap.json, x_summaryClassSkillMap.json, x_totalSelectedJobMap.json",
-        "Eliminated unused SummaryService: removed service registration, imports, and dead code",
-        "File cleanup: removed qr.jpg QR code image from old donation system",
-        "Retained only essential JSON files: item.json, monster.json, hp_sp_table.json (verified active usage)",
-        "Build verification: confirmed all core functionality preserved with successful compilation",
+        'topbar.updates.0.2.2.1',
+        'topbar.updates.0.2.2.2',
+        'topbar.updates.0.2.2.3',
+        'topbar.updates.0.2.2.4',
+        'topbar.updates.0.2.2.5',
+        'topbar.updates.0.2.2.6',
       ],
     },
     {
       v: '0.2.1-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
-        "Major Cleanup & Unused Feature Removal: Comprehensive cleanup focusing calculator on core functionality",
-        "Removed unused cloud-based features: authentication system, cloud presets, item ranking, user profiles",
-        "Deleted 18 files including entire modules (auth/, shared-preset/, preset-summary/, user-profile/)",
-        "Simplified codebase: removed JWT authentication, cloud API dependencies, and server-based preset management",
-        "Preserved local preset functionality: localStorage-based saves, preset management dialog, class filtering",
-        "Build optimization: eliminated thousands of lines of unused code while maintaining all core calculator features",
-        "Focus refinement: calculator now purely dedicated to damage calculation with simple local preset management",
+        'topbar.updates.0.2.1.1',
+        'topbar.updates.0.2.1.2',
+        'topbar.updates.0.2.1.3',
+        'topbar.updates.0.2.1.4',
+        'topbar.updates.0.2.1.5',
+        'topbar.updates.0.2.1.6',
+        'topbar.updates.0.2.1.7',
       ],
     },
     {
       v: '0.1.5-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
-        "Complete Thai text elimination: comprehensive cleanup removing all remaining Thai text from calculator interface",
-        "UI text translation: accuracy/penetration labels, monster location names, skill descriptions, and system messages",
-        "Enhanced English consistency: standardized terminology across all calculator components and battle summaries",
-        "Code comment translation: converted Thai developer comments to English for better maintainability",
+        'topbar.updates.0.1.5.1',
+        'topbar.updates.0.1.5.2',
+        'topbar.updates.0.1.5.3',
+        'topbar.updates.0.1.5.4',
       ],
     },
     {
       v: '0.1.4-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
-        "Navbar clean-up: moved References button to footer, repositioned version to right side",
-        "Icon consistency fix: standardized all topbar icons to 1.25rem size with CSS rules",
-        "Converted home button from tab menu to regular button for consistency",
-        "Code optimization: removed unused tab properties, reduced bundle size by 11.73 kB",
+        'topbar.updates.0.1.4.1',
+        'topbar.updates.0.1.4.2',
+        'topbar.updates.0.1.4.3',
+        'topbar.updates.0.1.4.4',
       ],
     },
     {
       v: '0.1.3-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
-        "Major navbar redesign: moved Calculator to far left as home icon only, removed green selection bar",
-        "Improved spacing between search icon and Items text, enhanced Settings cogwheel sizing",
-        "Complete Thai text translation: penetration labels, skill names, reference titles, and author names",
-        "CSS cleanup: removed problematic border styling causing visual issues",
+        'topbar.updates.0.1.3.1',
+        'topbar.updates.0.1.3.2',
+        'topbar.updates.0.1.3.3',
+        'topbar.updates.0.1.3.4',
       ],
     },
     {
       v: '0.1.2-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
-        "Fixed topbar right-side positioning by moving Calculator, Items, and Settings buttons to layout-topbar-menu container",
+        'topbar.updates.0.1.2.1',
       ],
     },
     {
       v: '0.1.1-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
-        "Fixed topbar right-side elements positioning to ensure they align all the way to the right edge",
+        'topbar.updates.0.1.1.1',
       ],
     },
     {
       v: '0.1.0-BETA',
       date: new Date().toLocaleDateString('en-US'),
       logs: [
-        "Initial beta release",
-        "Removed support functionality", 
-        "Reset version to 0.0.1-BETA",
-        "Reorganized topbar layout: Version/Bell/References on left, Calculator/Items/Settings on right",
+        'topbar.updates.0.1.0.1',
+        'topbar.updates.0.1.0.2',
+        'topbar.updates.0.1.0.3',
+        'topbar.updates.0.1.0.4',
       ],
     },
   ];
@@ -272,6 +275,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
   constructor(
     public layoutService: LayoutService,
+    private readonly i18nService: I18nService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
   ) { }
@@ -284,6 +288,16 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Removed authentication functionality
+  }
+
+  get selectedLanguage(): AppLanguage {
+    return this.i18nService.currentLanguage;
+  }
+
+  set selectedLanguage(language: AppLanguage) {
+    if (!language) return;
+
+    this.i18nService.setLanguage(language);
   }
 
 
@@ -323,7 +337,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     return new Promise((res) => {
       this.confirmationService.confirm({
         message: message,
-        header: 'Confirmation',
+        header: this.i18nService.t('common.confirmation'),
         icon: icon || 'pi pi-exclamation-triangle',
         accept: () => {
           res(true);

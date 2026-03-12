@@ -3,40 +3,34 @@ import { createBonusNameList, prettyItemDesc } from '../../../../utils';
 import { DropdownModel } from '../../../../models/dropdown.model';
 import { ItemModel } from '../../../../models/item.model';
 import { Observable, Subject, Subscription, debounceTime, tap } from 'rxjs';
+import { I18nService } from 'src/app/i18n/i18n.service';
 
-const positions: DropdownModel[] = [
-  { value: 'weaponList', label: 'Weapon' },
-  { value: 'weaponCardList', label: 'Weapon Card' },
-
-  { value: 'shieldList', label: 'Shield' },
-  { value: 'shieldCardList', label: 'Shield Card' },
-
-  { value: 'headUpperList', label: 'Head Upper' },
-  { value: 'headMiddleList', label: 'Head Middle' },
-  { value: 'headLowerList', label: 'Head Lower' },
-  { value: 'headCardList', label: 'Head Card' },
-
-  { value: 'enchants', label: 'Enchant Stone' },
-
-  { value: 'armorList', label: 'Armor' },
-  { value: 'armorCardList', label: 'Armor Card' },
-  { value: 'garmentList', label: 'Garment' },
-  { value: 'garmentCardList', label: 'Garment Card' },
-  { value: 'bootList', label: 'Boot' },
-  { value: 'bootCardList', label: 'Boot Card' },
-  { value: 'accList', label: 'Acc' },
-  { value: 'accCardList', label: 'Acc Card' },
-
-  { value: 'petList', label: 'Pet' },
-
-  { value: 'costumeList', label: 'Costume' },
-
-  { value: 'shadowWeaponList', label: 'Shadow Weapon' },
-  { value: 'shadowArmorList', label: 'Shadow Armor' },
-  { value: 'shadowShieldList', label: 'Shadow Shield' },
-  { value: 'shadowBootList', label: 'Shadow Boot' },
-  { value: 'shadowEarringList', label: 'Shadow Earring' },
-  { value: 'shadowPendantList', label: 'Shadow Pendant' },
+const positionKeys: { value: string; key: string; }[] = [
+  { value: 'weaponList', key: 'calculator.slots.weapon' },
+  { value: 'weaponCardList', key: 'calculator.slots.weaponCard' },
+  { value: 'shieldList', key: 'calculator.slots.shield' },
+  { value: 'shieldCardList', key: 'calculator.slots.shieldCard' },
+  { value: 'headUpperList', key: 'calculator.slots.headUpper' },
+  { value: 'headMiddleList', key: 'calculator.slots.headMiddle' },
+  { value: 'headLowerList', key: 'calculator.slots.headLower' },
+  { value: 'headCardList', key: 'calculator.slots.headCard' },
+  { value: 'enchants', key: 'calculator.slots.enchantStone' },
+  { value: 'armorList', key: 'calculator.slots.armor' },
+  { value: 'armorCardList', key: 'calculator.slots.armorCard' },
+  { value: 'garmentList', key: 'calculator.slots.garment' },
+  { value: 'garmentCardList', key: 'calculator.slots.garmentCard' },
+  { value: 'bootList', key: 'calculator.slots.boot' },
+  { value: 'bootCardList', key: 'calculator.slots.bootCard' },
+  { value: 'accList', key: 'calculator.slots.acc' },
+  { value: 'accCardList', key: 'calculator.slots.accCard' },
+  { value: 'petList', key: 'calculator.slots.pet' },
+  { value: 'costumeList', key: 'calculator.slots.costume' },
+  { value: 'shadowWeaponList', key: 'calculator.slots.shadowWeapon' },
+  { value: 'shadowArmorList', key: 'calculator.slots.shadowArmor' },
+  { value: 'shadowShieldList', key: 'calculator.slots.shadowShield' },
+  { value: 'shadowBootList', key: 'calculator.slots.shadowBoot' },
+  { value: 'shadowEarringList', key: 'calculator.slots.shadowEarring' },
+  { value: 'shadowPendantList', key: 'calculator.slots.shadowPendant' },
 ];
 
 @Component({
@@ -53,17 +47,18 @@ export class ItemSearchComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription;
   private subscription2: Subscription;
+  private languageSubscription: Subscription;
 
   private selectItemSource = new Subject<number>();
   private onSelectItemChange$ = this.selectItemSource.asObservable();
 
   isShowSearchDialog = false;
-  itemPositionOptions = positions;
+  itemPositionOptions: DropdownModel[] = [];
   selectedItemPositions: string[] = [];
   itemSearchFirst = 0;
   totalFilteredItems = 0;
 
-  bonusNameList = createBonusNameList() as any[];
+  bonusNameList: any[] = [];
   selectedBonus: string[] = [];
 
   filteredItems: DropdownModel[] = [];
@@ -75,21 +70,10 @@ export class ItemSearchComponent implements OnInit, OnDestroy {
 
   selectedOffensiveSkills: string[] = [];
 
+  constructor(private readonly i18nService: I18nService) {}
+
   ngOnInit(): void {
-    this.bonusNameList.push(
-      {
-        label: 'FCT',
-        value: 'fct',
-      },
-      {
-        label: 'Perfect Dodge',
-        value: 'perfectDodge',
-      },
-      {
-        label: 'Reduce Cooldown',
-        value: 'cd__',
-      },
-    );
+    this.rebuildLocalizedOptions();
 
     this.subscription = this.onClassChanged.subscribe(() => {
       this.clearItemSearch();
@@ -102,11 +86,15 @@ export class ItemSearchComponent implements OnInit, OnDestroy {
       .subscribe((itemId) => {
         this.seletedItemId = itemId;
       });
+    this.languageSubscription = this.i18nService.language$.subscribe(() => {
+      this.rebuildLocalizedOptions();
+    });
   }
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
     this.subscription2?.unsubscribe();
+    this.languageSubscription?.unsubscribe();
   }
 
   onItemSearchFilterChange() {
@@ -204,5 +192,28 @@ export class ItemSearchComponent implements OnInit, OnDestroy {
 
   showDialog() {
     this.showSearchDialog();
+  }
+
+  private rebuildLocalizedOptions() {
+    this.itemPositionOptions = positionKeys.map((position) => ({
+      value: position.value,
+      label: this.i18nService.t(position.key),
+    }));
+
+    this.bonusNameList = createBonusNameList() as any[];
+    this.bonusNameList.push(
+      {
+        label: 'FCT',
+        value: 'fct',
+      },
+      {
+        label: this.i18nService.t('itemSearch.perfectDodge'),
+        value: 'perfectDodge',
+      },
+      {
+        label: this.i18nService.t('itemSearch.reduceCooldown'),
+        value: 'cd__',
+      },
+    );
   }
 }

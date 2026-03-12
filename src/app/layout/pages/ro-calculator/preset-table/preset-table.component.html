@@ -3,7 +3,7 @@
     <div class="grid grid-nogutter">
       <div class="col-12">
         <div class="p-inputgroup dropdown-joblist">
-          <span class="p-inputgroup-addon" style="width: 80px">Filter</span>
+          <span class="p-inputgroup-addon" style="width: 80px">{{ 'common.filter' | t }}</span>
           <p-dropdown
             inputId="character"
             [autoDisplayFirst]="false"
@@ -14,7 +14,7 @@
             filterBy="label"
             scrollHeight="350px"
             [(ngModel)]="selectedClassIdFilter"
-            placeholder="All classes"
+            [placeholder]="'preset.allClasses' | t"
             (onChange)="onClassFilterChange()"
           >
             <ng-template let-job pTemplate="selectedItem">
@@ -39,7 +39,7 @@
           class="p-button-help"
           pButton
           icon="pi pi-download"
-          label="Load"
+          [label]="'common.load' | t"
           [disabled]="!selectedPreset"
           (click)="onLoadPresetClick()"
         ></button>
@@ -50,7 +50,7 @@
           class="p-button-danger"
           pButton
           icon="pi pi-trash"
-          label="Delete"
+          [label]="'common.delete' | t"
           [disabled]="!selectedPreset"
           (click)="deletePreset()"
         ></button>
@@ -76,11 +76,11 @@
   <div class="col-9 pl-3">
     <div class="grid grid-nogutter">
       <div class="col-6">
-        <span class="text-lg font-semibold">Class: </span>
-        <span class="text-primary-300">{{ classLabelMap[model.class] || 'None' }}</span>
+        <span class="text-lg font-semibold">{{ 'preset.classLabel' | t }}: </span>
+        <span class="text-primary-300">{{ classLabelMap[model.class] || ('common.none' | t) }}</span>
       </div>
       <div class="col-6">
-        <span class="text-lg font-semibold">Level: </span>
+        <span class="text-lg font-semibold">{{ 'preset.levelLabel' | t }}: </span>
         <span class="text-primary-300">{{ model.baseLv || 'N/A' }}/{{ model.jobLv || 'N/A' }}</span>
       </div>
     </div>
@@ -91,17 +91,17 @@
           <table class="w-full">
             <thead>
               <tr>
-                <th class="text-left p-2">Equipment</th>
-                <th class="text-left p-2">Refine</th>
-                <th class="text-left p-2">Cards</th>
-                <th class="text-left p-2">Enchants</th>
+                <th class="text-left p-2">{{ 'preset.tableEquipment' | t }}</th>
+                <th class="text-left p-2">{{ 'preset.tableRefine' | t }}</th>
+                <th class="text-left p-2">{{ 'preset.tableCards' | t }}</th>
+                <th class="text-left p-2">{{ 'preset.tableEnchants' | t }}</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let item of displayMainItems">
                 <td class="p-2">
                   <div class="flex align-items-center gap-2">
-                    <span>{{ item.itemType | titlecase }}</span>
+                    <span>{{ getItemTypeLabel(item.itemType) }}</span>
                   </div>
                 </td>
                 <td class="p-2">{{ item.refineTxt }}</td>
@@ -120,17 +120,17 @@
           </table>
 
           <div *ngIf="displayCostumeItems.length > 0" class="mt-4">
-            <h4>Costume Equipment</h4>
+            <h4>{{ 'preset.costumeEquipment' | t }}</h4>
             <table class="w-full">
               <thead>
                 <tr>
-                  <th class="text-left p-2">Type</th>
-                  <th class="text-left p-2">Item</th>
+                  <th class="text-left p-2">{{ 'preset.tableType' | t }}</th>
+                  <th class="text-left p-2">{{ 'preset.tableItem' | t }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let item of displayCostumeItems">
-                  <td class="p-2">{{ item.itemType | titlecase }}</td>
+                  <td class="p-2">{{ getItemTypeLabel(item.itemType) }}</td>
                   <td class="p-2">{{ getItemLabel(item.mainId) }}</td>
                 </tr>
               </tbody>
@@ -138,18 +138,18 @@
           </div>
 
           <div *ngIf="displayShadowItems.length > 0" class="mt-4">
-            <h4>Shadow Equipment</h4>
+            <h4>{{ 'preset.shadowEquipment' | t }}</h4>
             <table class="w-full">
               <thead>
                 <tr>
-                  <th class="text-left p-2">Type</th>
-                  <th class="text-left p-2">Refine</th>
-                  <th class="text-left p-2">Item</th>
+                  <th class="text-left p-2">{{ 'preset.tableType' | t }}</th>
+                  <th class="text-left p-2">{{ 'preset.tableRefine' | t }}</th>
+                  <th class="text-left p-2">{{ 'preset.tableItem' | t }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let item of displayShadowItems">
-                  <td class="p-2">{{ item.itemType | titlecase }}</td>
+                  <td class="p-2">{{ getItemTypeLabel(item.itemType) }}</td>
                   <td class="p-2">{{ item.refineTxt }}</td>
                   <td class="p-2">{{ getItemLabel(item.mainId) }}</td>
                 </tr>

@@ -1,6 +1,6 @@
 <div class="layout-footer">
     <div class="flex justify-content-between align-items-center w-full">
-        <div class="font-medium">RO Calculator</div>
+        <div class="font-medium">{{ 'footer.title' | t }}</div>
         
         <!-- Right side: References -->
         <div class="flex align-items-center">
@@ -10,18 +10,18 @@
                 (click)="showReferenceDialog()"
                 style="font-size: 0.8rem; padding: 0.25rem 0.5rem;"
             >
-                References
+                {{ 'footer.referencesButton' | t }}
             </button>
         </div>
     </div>
 </div>
 
-<p-dialog header="References" [draggable]="false" [resizable]="false" [modal]="true" [(visible)]="visibleReference" [style]="{ width: '50vw', height: '70vh' }">
+<p-dialog [header]="'common.references' | t" [draggable]="false" [resizable]="false" [modal]="true" [(visible)]="visibleReference" [style]="{ width: '50vw', height: '70vh' }">
     <ul>
         <li *ngFor="let reference of references">
-            <span class="">[ by {{ reference.writer }} ]</span>
+            <span class="">[ {{ 'common.by' | t }} {{ reference.writer }} ]</span>
             <span class="mx-2">{{ reference.label }}</span>
-            <a href="{{ reference.link }}" target="_blank" rel="noreferrer noopener">Link</a>
+            <a href="{{ reference.link }}" target="_blank" rel="noreferrer noopener">{{ 'common.link' | t }}</a>
         </li>
     </ul>
 </p-dialog>

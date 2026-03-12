@@ -3,6 +3,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MonsterGroupNames } from '../../../../constants/monster-spawn-mapper';
 import { Subscription, debounceTime } from 'rxjs';
 import { FilterService } from 'primeng/api';
+import { I18nService } from 'src/app/i18n/i18n.service';
 
 @Component({
   selector: 'app-monster-data-view',
@@ -13,15 +14,22 @@ export class MonsterDataViewComponent implements OnInit, OnDestroy {
   allMonsters: any[];
   products: any[];
   seletedGroupNames = [] as string[];
-  groupNames = ['Boss', ...MonsterGroupNames];
+  groupNames: { label: string; value: string; }[] = [];
 
   textSearch = '';
   textSearchChangeEvent = new EventEmitter();
   sub: Subscription;
+  languageSub: Subscription;
 
-  constructor(private ref: DynamicDialogRef, private dynamicDialogConfig: DynamicDialogConfig, private filterService: FilterService) {}
+  constructor(
+    private ref: DynamicDialogRef,
+    private dynamicDialogConfig: DynamicDialogConfig,
+    private filterService: FilterService,
+    private readonly i18nService: I18nService,
+  ) {}
 
   ngOnInit() {
+    this.rebuildGroupNames();
     this.allMonsters = this.getMonsters();
     this.products = this.allMonsters;
 
@@ -34,10 +42,14 @@ export class MonsterDataViewComponent implements OnInit, OnDestroy {
         });
       }
     });
+    this.languageSub = this.i18nService.language$.subscribe(() => {
+      this.rebuildGroupNames();
+    });
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    this.languageSub?.unsubscribe();
   }
 
   private getMonsters() {
@@ -83,5 +95,12 @@ export class MonsterDataViewComponent implements OnInit, OnDestroy {
 
   onTextSearchChange() {
     this.textSearchChangeEvent.emit();
+  }
+
+  private rebuildGroupNames() {
+    this.groupNames = [
+      { label: this.i18nService.t('monster.boss'), value: 'Boss' },
+      ...MonsterGroupNames.map((groupName) => ({ label: groupName, value: groupName })),
+    ];
   }
 }

@@ -6,11 +6,13 @@
           <div class="col-4">
             <p-multiSelect
               [options]="groupNames"
+              optionLabel="label"
+              optionValue="value"
               [(ngModel)]="seletedGroupNames"
               [showClear]="true"
               [showToggleAll]="false"
               [maxSelectedLabels]="9"
-              placeholder="Monster group"
+              [placeholder]="'monster.groupPlaceholder' | t"
               (onChange)="onSelectGroupChange()"
               (onClear)="onSelectGroupChange()"
             >
@@ -22,7 +24,7 @@
               autocomplete="off"
               type="text"
               pInputText
-              placeholder="search"
+              [placeholder]="'monster.searchPlaceholder' | t"
               [(ngModel)]="textSearch"
               (ngModelChange)="onTextSearchChange()"
             />
