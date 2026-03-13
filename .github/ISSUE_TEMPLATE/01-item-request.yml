@@ -1,0 +1,111 @@
+name: Item Request
+description: Request a new item, or a fix to an existing item's name, description, or script.
+title: "[Item Request]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to request a new item or report an issue with an existing item in the calculator.
+
+        Prefer including the Divine Pride item ID or item URL. That lets the import workflow fetch the item directly.
+
+  - type: dropdown
+    id: request_type
+    attributes:
+      label: Request type
+      description: What kind of item change is needed?
+      options:
+        - Add a new item
+        - Fix item name
+        - Fix item description
+        - Fix item script/effects
+        - Fix item icon
+        - Other item-related change
+    validations:
+      required: true
+
+  - type: input
+    id: item_id
+    attributes:
+      label: Divine Pride item ID
+      description: Numeric item ID if you know it, for example 450407.
+      placeholder: "450407"
+    validations:
+      required: false
+
+  - type: input
+    id: item_name
+    attributes:
+      label: Item name
+      description: Use the exact in-game or Divine Pride item name if possible.
+      placeholder: Critical Exoskeleton [1]
+    validations:
+      required: false
+
+  - type: input
+    id: divine_pride_url
+    attributes:
+      label: Divine Pride link
+      description: Preferred source link for the request.
+      placeholder: https://www.divine-pride.net/database/item/450407/
+    validations:
+      required: false
+
+  - type: dropdown
+    id: server
+    attributes:
+      label: Server/source
+      description: Which server should the item data follow?
+      options:
+        - LATAM
+        - bRO
+        - iRO
+        - kRO
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: request_summary
+    attributes:
+      label: What should change?
+      description: Describe the requested addition or correction.
+      placeholder: Add this item to the calculator using the LATAM name and description.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_data
+    attributes:
+      label: Expected item data
+      description: Paste the expected item name, description, set effects, or script behavior if you already have it.
+      placeholder: |
+        Name:
+        Description:
+        Script/effects:
+    validations:
+      required: false
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Add supporting links, screenshots, patch notes, or other official sources.
+      placeholder: |
+        Divine Pride:
+        Patch notes:
+        Screenshot:
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues before opening this request.
+          required: true
+        - label: I included at least an item name, item ID, or Divine Pride link.
+          required: true
+        - label: I understand some item scripts may still require manual review before they can be added safely.
+          required: true
