@@ -62,7 +62,9 @@ sources:
       date: 2025-08-25
       subject: "Update item"
     last_reviewed: null
-    review_status: pending-initial-review
+    review_status: selective-import-in-progress
     notes: >
-      No shared checkpoint has been recorded yet. Start review from
-      upstream/main..attackjom/main.
+      Branch codex/import-attackjom-review selectively imported source commits
+      ecee78be, bb5acd60, and d573becf. The initial chronological review is
+      still incomplete, so last_reviewed intentionally remains null and the
+      next full review should still start from upstream/main..attackjom/main.
