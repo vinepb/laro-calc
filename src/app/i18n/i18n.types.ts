@@ -7,6 +7,7 @@ export interface TranslationParams {
 }
 
 export interface LanguageOption {
+  flag: string;
   label: string;
   value: AppLanguage;
 }

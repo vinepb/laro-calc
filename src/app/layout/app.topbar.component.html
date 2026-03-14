@@ -72,7 +72,23 @@
         optionValue="value"
         styleClass="topbar-language-dropdown"
         panelStyleClass="topbar-language-dropdown-panel"
-      ></p-dropdown>
+      >
+        <ng-template let-selectedOption pTemplate="selectedItem">
+          <div class="topbar-language-option" *ngIf="selectedOption; else emptyLanguageSelection">
+            <span class="topbar-language-flag" aria-hidden="true">{{ selectedOption.flag }}</span>
+            <span>{{ selectedOption.label }}</span>
+          </div>
+        </ng-template>
+        <ng-template #emptyLanguageSelection>
+          <span>{{ 'topbar.language' | t }}</span>
+        </ng-template>
+        <ng-template let-languageOption pTemplate="item">
+          <div class="topbar-language-option">
+            <span class="topbar-language-flag" aria-hidden="true">{{ languageOption.flag }}</span>
+            <span>{{ languageOption.label }}</span>
+          </div>
+        </ng-template>
+      </p-dropdown>
 
       <!-- Settings Cogwheel Button with better sizing -->
       <button 

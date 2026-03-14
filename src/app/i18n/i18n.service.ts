@@ -7,9 +7,9 @@ import { TranslationKey, enTranslations, translations } from './i18n.translation
 const LANGUAGE_STORAGE_KEY = 'appLanguage';
 
 const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { label: 'English', value: 'en' },
-  { label: 'Português (Brasil)', value: 'pt-BR' },
-  { label: 'Español', value: 'es' },
+  { flag: '🇺🇸', label: 'English', value: 'en' },
+  { flag: '🇧🇷', label: 'Português (Brasil)', value: 'pt-BR' },
+  { flag: '🇪🇸', label: 'Español', value: 'es' },
 ];
 
 export function detectAppLanguage(language?: string | null): AppLanguage {
