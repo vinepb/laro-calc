@@ -35,3 +35,22 @@ When the user asks to add a new item to the calculator:
 10. Run `npm run item:apply -- --draft .codex/item-import/<item_id>` only after explicit user approval.
     `item:apply` will not overwrite an existing item ID.
 11. After apply, run `npm run item:validate -- --draft .codex/item-import/<item_id>` and report exactly which repo files changed.
+
+## Fork Review Workflow
+When reviewing and importing updates from other forks:
+
+1. Treat `/Users/vinepb/Developer/turugrura/laro-calc/.fork-tracking.yml` as the shared source of truth for fork remotes, compare bases, current tips, and review checkpoints.
+2. Keep the configured remotes aligned with the tracker file.
+   Current expected source remotes are `upstream`, `lzcouto`, and `attackjom`.
+3. Start each review pass with `git fetch --all --prune`.
+4. Use `node scripts/fork-review.mjs [source]` to print the current review checkpoint and the exact `git log` command implied by `.fork-tracking.yml`.
+5. Review fork-only commits from the saved checkpoint in `.fork-tracking.yml`.
+   - If `last_reviewed` is set, use `git log --oneline --reverse <last_reviewed>..<remote>/<branch> --not upstream/main`.
+   - If `last_reviewed` is `null`, start from `git log --oneline --reverse upstream/main..<remote>/<branch>`.
+6. When importing a useful change, use `git cherry-pick -x <sha>` so the original commit hash is preserved in the new commit message.
+7. After each review pass, update `.fork-tracking.yml` even if nothing was imported.
+   - refresh `current_tip`
+   - advance `last_reviewed` to the newest commit that was reviewed
+   - update `review_status` and `notes` so the next pass can start from the correct place
+8. If a new fork remote is added, add it to `.fork-tracking.yml` in the same change.
+9. Do not leave `.fork-tracking.yml` stale after reviewing or importing from another fork. The file is what tells future work where review should resume.

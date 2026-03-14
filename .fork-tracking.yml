@@ -1,0 +1,68 @@
+# Shared review checkpoints for external fork remotes.
+# Update `last_reviewed` after each review pass, even if no commits are imported.
+
+schema_version: 1
+
+project:
+  repo: vinepb/laro-calc
+  default_branch: main
+
+sources:
+  upstream:
+    remote: upstream
+    repo: turugrura/tong-calc-ro
+    branch: main
+    compare_from: null
+    current_tip:
+      sha: ba4312fccd642503645d32d21527ce8b8c7871e3
+      date: 2025-11-29
+      subject: "[release] v3.2.19"
+    last_reviewed: null
+    review_status: pending-initial-review
+    notes: >
+      Original upstream source. No shared checkpoint has been recorded yet.
+
+  lzcouto:
+    remote: lzcouto
+    repo: lzcouto/nas-calc
+    branch: main
+    compare_from: upstream/main
+    current_tip:
+      sha: 4c22a5b115f1a7fc787ab9bc34997318a1ed9820
+      date: 2025-06-11
+      subject: "[release] v0.3.0-BETA: introduced comprehensive Divine Pride Search feature with a professional UI, advanced data extraction, and LATAM server integration; enhanced error handling and added raw JSON view for debugging; updated topbar for seamless access to the new functionality."
+    fork_delta_commit_count: 18
+    first_unique_commit:
+      sha: 8c66824b8e6f04a3b304319b1256f6b301d52698
+      date: 2025-06-09
+      subject: "[feat] updated README.md with comprehensive project overview, installation instructions, and detailed feature descriptions for Ragnarok Online Damage Calculator"
+    last_reviewed:
+      sha: 4c22a5b115f1a7fc787ab9bc34997318a1ed9820
+      date: 2025-06-11
+    imported_into:
+      sha: 4407f591ee8574c46c4d19a04d796f068232a0e7
+      date: 2025-06-11
+      subject: "[release] v0.3.0-BETA: introduced comprehensive Divine Pride Search feature with a professional UI, advanced data extraction, and LATAM server integration; enhanced error handling and added raw JSON view for debugging; updated topbar for seamless access to the new functionality."
+    review_status: imported-through-tip
+    notes: >
+      All 18 commits ahead of upstream/main were already imported into this repo.
+
+  attackjom:
+    remote: attackjom
+    repo: attackjom/tong-calc-ro
+    branch: main
+    compare_from: upstream/main
+    current_tip:
+      sha: c6df90c59c8a34947aa559fdf111146e31c80622
+      date: 2026-03-13
+      subject: "Ring of Frozen Promise"
+    fork_delta_commit_count: 209
+    first_unique_commit:
+      sha: 352aafb49562bd7f65e9274e07fe2c81d40c67c6
+      date: 2025-08-25
+      subject: "Update item"
+    last_reviewed: null
+    review_status: pending-initial-review
+    notes: >
+      No shared checkpoint has been recorded yet. Start review from
+      upstream/main..attackjom/main.
