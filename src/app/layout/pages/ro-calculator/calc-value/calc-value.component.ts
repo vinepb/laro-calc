@@ -23,6 +23,7 @@ export class CalcValueComponent {
   @Input() max2: number;
   @Input() raw: number;
   @Input() displayRaw = false;
+  @Input() numberFormat = '1.0-5';
 
   constructor() { }
 

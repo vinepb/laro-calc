@@ -358,8 +358,8 @@
                   </div>
                   <div class="col-12">
                     {{ 'calculator.summary.aspd' | t }}
-                    <span class="font-semibold px-1 summary_stat_atk">{{ totalSummary?.calc?.totalAspd || 0 }}</span>
-                    <span class="font-semibold px-1 summary_highlight">( {{ totalSummary?.calc?.hitPerSecs || 0 }} {{ 'calculator.summary.hitsPerSecond' | t }} )</span>
+                    <span class="font-semibold px-1 summary_stat_atk">{{ (totalSummary?.calc?.totalAspd || 0) | number : '1.1-1' }}</span>
+                    <span class="font-semibold px-1 summary_highlight">( {{ (totalSummary?.calc?.hitPerSecs || 0) | number : '1.1-1' }} {{ 'calculator.summary.hitsPerSecond' | t }} )</span>
                   </div>
                   <div class="col-12">
                     {{ 'calculator.summary.hit' | t }}

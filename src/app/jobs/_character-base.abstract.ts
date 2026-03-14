@@ -6,7 +6,7 @@ import { WeaponTypeName } from '../constants/weapon-type-mapper';
 import { Weapon } from '../domain';
 import { EquipmentSummaryModel } from '../models/equipment-summary.model';
 import { AdditionalBonusInput, InfoForClass } from '../models/info-for-class.model';
-import { sortSkill } from '../utils';
+import { floor, sortSkill } from '../utils';
 import { AspdTable } from './_aspd-table';
 import { ClassName } from './_class-name';
 
@@ -517,11 +517,11 @@ export abstract class CharacterBase {
     const isRange = rangeType === 'range';
     const statAspd = Math.sqrt((totalAgi * totalAgi) / 2 + (totalDex * totalDex) / (isRange ? 7 : 5)) / 4;
     const potionSkillAspd = ((aspdByPotion + skillAspd) * totalAgi) / 200;
-    const rawCalcAspd = Math.floor(statAspd + potionSkillAspd + ((isAllowShield && isEquipShield) ? shieldPenalty : 0));
+    const rawCalcAspd = floor(statAspd + potionSkillAspd + ((isAllowShield && isEquipShield) ? shieldPenalty : 0), 1);
 
-    const baseAspd2 = Math.floor((baseAspd + leftWeapon + rawCalcAspd) * (100 - a.decreaseSkillAspdPercent) * 0.01);
-    const equip = Math.floor((195 - baseAspd2) * (aspdPercent * 0.01));
-    const final = Math.min(baseAspd2 + equip + aspd, 193);
+    const baseAspd2 = floor((baseAspd + leftWeapon + rawCalcAspd) * (100 - a.decreaseSkillAspdPercent) * 0.01, 1);
+    const equip = floor((195 - baseAspd2) * (aspdPercent * 0.01), 1);
+    const final = floor(Math.min(baseAspd2 + equip + aspd, 193), 1);
 
     // console.log({
     //   weapon,

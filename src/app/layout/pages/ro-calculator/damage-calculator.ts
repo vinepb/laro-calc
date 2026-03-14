@@ -434,7 +434,7 @@ export class DamageCalculator {
       decreaseSkillAspdPercent: this.totalBonus.decreaseSkillAspdPercent,
     });
 
-    const hitsPerSec = floor(50 / (200 - totalAspd));
+    const hitsPerSec = floor(50 / (200 - totalAspd), 1);
 
     return { totalAspd, hitsPerSec: Math.max(hitsPerSec, 1) };
   }
