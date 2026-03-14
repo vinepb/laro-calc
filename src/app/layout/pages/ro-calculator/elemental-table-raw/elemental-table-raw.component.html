@@ -2,20 +2,20 @@
   <p-table styleClass="p-datatable-striped p-datatable-sm" [loading]="isLoading" filterValue="label" [value]="calcMonsters" [tableStyle]="{ 'min-width': '550px' }">
     <ng-template pTemplate="header" let-columns>
       <tr>
-        <th rowspan="2" class="text-center font-semibold">Monster</th>
-        <th colspan="10" class="text-center font-semibold">Attacker</th>
+        <th rowspan="2" class="text-center font-semibold">{{ 'calculator.elementTable.monster' | t }}</th>
+        <th colspan="10" class="text-center font-semibold">{{ 'calculator.elementTable.attacker' | t }}</th>
       </tr>
       <tr>
-        <th class="property_Neutral text-center px-1">Neutral</th>
-        <th class="property_Water text-center px-1">Water</th>
-        <th class="property_Earth text-center px-1">Earth</th>
-        <th class="property_Fire text-center px-1">Fire</th>
-        <th class="property_Wind text-center px-1">Wind</th>
-        <th class="property_Poison text-center px-1">Poison</th>
-        <th class="property_Holy text-center px-1">Holy</th>
-        <th class="property_Dark text-center px-1">Dark</th>
-        <th class="property_Ghost text-center px-1">Ghost</th>
-        <th class="property_Undead text-center px-1">Undead</th>
+        <th class="property_Neutral text-center px-1">{{ 'calculator.elementTable.neutral' | t }}</th>
+        <th class="property_Water text-center px-1">{{ 'calculator.elementTable.water' | t }}</th>
+        <th class="property_Earth text-center px-1">{{ 'calculator.elementTable.earth' | t }}</th>
+        <th class="property_Fire text-center px-1">{{ 'calculator.elementTable.fire' | t }}</th>
+        <th class="property_Wind text-center px-1">{{ 'calculator.elementTable.wind' | t }}</th>
+        <th class="property_Poison text-center px-1">{{ 'calculator.elementTable.poison' | t }}</th>
+        <th class="property_Holy text-center px-1">{{ 'calculator.elementTable.holy' | t }}</th>
+        <th class="property_Dark text-center px-1">{{ 'calculator.elementTable.shadow' | t }}</th>
+        <th class="property_Ghost text-center px-1">{{ 'calculator.elementTable.ghost' | t }}</th>
+        <th class="property_Undead text-center px-1">{{ 'calculator.elementTable.undead' | t }}</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-item let-columns="columns">

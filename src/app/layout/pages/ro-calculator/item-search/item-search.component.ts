@@ -203,7 +203,7 @@ export class ItemSearchComponent implements OnInit, OnDestroy {
     this.bonusNameList = createBonusNameList() as any[];
     this.bonusNameList.push(
       {
-        label: 'FCT',
+        label: this.i18nService.t('itemSearch.fixedCastTime'),
         value: 'fct',
       },
       {
