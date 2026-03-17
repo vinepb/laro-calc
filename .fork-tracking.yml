@@ -65,6 +65,9 @@ sources:
     review_status: selective-import-in-progress
     notes: >
       Branch codex/import-attackjom-review selectively imported source commits
-      ecee78be, bb5acd60, and d573becf. The initial chronological review is
-      still incomplete, so last_reviewed intentionally remains null and the
-      next full review should still start from upstream/main..attackjom/main.
+      ecee78be, bb5acd60, d573becf, 468d4deb, fc193efd, 0abd628e, c7caace9,
+      4b51ed46, 2efa9a8b, aaf15f69, deacaa7c, and 209f25b6. Source commit
+      f8e44d25 was reviewed and skipped because it resolved to an empty change
+      on this branch. The initial chronological review is still incomplete, so
+      last_reviewed intentionally remains null and the next full review should
+      still start from upstream/main..attackjom/main.

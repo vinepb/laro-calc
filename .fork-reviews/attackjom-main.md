@@ -31,21 +31,30 @@ Status legend:
 - [pending] `87c6ec02` `2025-08-28` Eternal Cross + Savage shadow
 - [pending] `d770541a` `2025-08-28` Update skill-name.ts
 - [pending] `09af0224` `2025-08-28` Update skill name Cross Slash SHC
-- [next] `468d4deb` `2025-08-28` Update item.json
-  notes: item-only candidate
-- [pending] `2efa9a8b` `2025-08-28` update Enroached Geffenia monster
-- [pending] `aaf15f69` `2025-08-28` Update monster.json
-- [next] `fc193efd` `2025-08-29` Update Item
-  notes: item-only candidate
-- [next] `0abd628e` `2025-08-30` Update item.json
-  notes: item-only candidate
-- [pending] `cdd7a3d0` `2025-08-30` Update item.json
+- [imported] `468d4deb` `2025-08-28` Update item.json
+  local: `d08468d4`
+  notes: selectively imported item IDs `24910`-`24921`; matching icons restored from `attackjom/main`
+- [imported] `2efa9a8b` `2025-08-28` update Enroached Geffenia monster
+  local: `4b59872d`
+  notes: selectively imported monster IDs `22476`-`22489` and the `ch1_gfn03` spawn mapper entry
+- [imported] `aaf15f69` `2025-08-28` Update monster.json
+  local: `af8f9332`
+  notes: selectively imported the first stat refresh for monster IDs `22476`-`22489`
+- [imported] `fc193efd` `2025-08-29` Update Item
+  local: `3b126812`
+  notes: selectively imported item IDs `24926`, `24927`, `24928`, `24929`, `24936`, `24937`, `24938`, `24939`; also updated item `24920`; matching icons restored from `attackjom/main`
+- [imported] `0abd628e` `2025-08-30` Update item.json
+  local: `f82b0703`
+  notes: selectively imported item ID `24987`; matching icon restored from `attackjom/main`
+- [likely-skip] `cdd7a3d0` `2025-08-30` Update item.json
+  notes: parsed `item.json` content matched its parent; appears to be a no-op for this repo
 - [pending] `0d54e66a` `2025-08-30` Update
 - [pending] `f64c6c0d` `2025-09-01` Update GGT Troubadour/Trouvere
 - [pending] `e84925cb` `2025-09-04` Update white knight LT
 - [pending] `14c3d650` `2025-09-04` Update
-- [next] `c7caace9` `2025-09-04` Update item.json
-  notes: item-only candidate
+- [imported] `c7caace9` `2025-09-04` Update item.json
+  local: `ff77980c`
+  notes: selectively imported the update to item `480640`; local icon already matched the source image
 - [pending] `b18e84d6` `2025-09-06` Update master shadow enchant
 - [pending] `fea3b7f5` `2025-09-06` Update Shadow KRO
 - [pending] `ca61d523` `2025-09-06` Update shadow
@@ -54,7 +63,9 @@ Status legend:
 - [pending] `b33435a0` `2025-09-06` Update GGT Skill button
 - [pending] `723a0668` `2025-09-06` Update buff + monster
 - [pending] `772d6301` `2025-09-07` Update ImperialGuard.ts
-- [pending] `deacaa7c` `2025-09-08` Update monster.json
+- [imported] `deacaa7c` `2025-09-08` Update monster.json
+  local: `3d881270`
+  notes: selectively imported the `res` and `mres` update for monster IDs `22476`-`22489`
 - [pending] `3c3e0375` `2025-09-08` Update Cardinal.ts
 - [pending] `0b23cf0a` `2025-09-08` Update ImperialGuard.ts
 - [likely-skip] `8b6f71ee` `2025-09-08` 123
@@ -109,7 +120,8 @@ Status legend:
 - [pending] `b08dfae8` `2025-09-18` Add Jack Frost Nova , Crystal Impact
 - [pending] `fa2e323e` `2025-09-18` Update app.topbar.component.ts
 - [pending] `085405cb` `2025-09-19` Update Monster (Biosphere, Deep F1, Deep Abyss, Oz dungeon)
-- [pending] `f8e44d25` `2025-09-19` Fix duplicate Abyss Salamander
+- [likely-skip] `f8e44d25` `2025-09-19` Fix duplicate Abyss Salamander
+  notes: evaluated during cherry-pick; resolved to an empty change on this branch, so it was skipped
 - [pending] `f99803b2` `2025-09-19` update topbar
 - [pending] `27b987ab` `2025-09-19` Update monster-spawn-mapper.ts
 - [pending] `3335cf7e` `2025-09-19` Update monster-spawn-mapper.ts
@@ -209,13 +221,17 @@ Status legend:
 - [pending] `e97f4ed8` `2026-02-01` Add Enchanting Sky Buff
 - [deferred] `252a9701` `2026-02-07` feat(item.json): Add Aquarius Heart Scroll Item
   notes: mixed item, images, jobs, mapper, enchant table, and topbar
-- [pending] `4b51ed46` `2026-02-07` fix(item.json): Fix minor info for issgard supreme
+- [imported] `4b51ed46` `2026-02-07` fix(item.json): Fix minor info for issgard supreme
+  local: `ef25fd05`
+  notes: selectively imported item ID `401237`; matching icon restored from `attackjom/main`
 - [pending] `af344a58` `2026-02-07` Fix power Cardinal
 - [pending] `d84294c9` `2026-02-08` Fix Exotic Boots-LT
 - [pending] `af515f31` `2026-02-08` Update fix item script
 - [deferred] `20de912a` `2026-02-10` Add COP 4F Initial Version
   notes: mixed monster data, spawn mapper, and topbar changes
-- [pending] `209f25b6` `2026-02-11` Update monster.json
+- [imported] `209f25b6` `2026-02-11` Update monster.json
+  local: `6e2184b9`
+  notes: selectively imported the Corridor 4 phantom-boss update for monster IDs `21815`-`21834`
 - [pending] `5f7c1273` `2026-02-11` Exclude Corridor Betelgeuse from Is_Betelgeuse function
 - [pending] `a3418aed` `2026-02-14` Fix Master Shadow enchant / Lord Knight Card
 - [imported] `ecee78be` `2026-02-19` feat(item): Add new COP card
