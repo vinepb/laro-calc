@@ -53,10 +53,10 @@ sources:
     branch: main
     compare_from: upstream/main
     current_tip:
-      sha: c6df90c59c8a34947aa559fdf111146e31c80622
-      date: 2026-03-13
-      subject: "Ring of Frozen Promise"
-    fork_delta_commit_count: 209
+      sha: c91c432080bb2f94d7cff81ee618256099f6a950
+      date: 2026-03-21
+      subject: "Update Enchant Exotic Temporal Armor"
+    fork_delta_commit_count: 211
     first_unique_commit:
       sha: 352aafb49562bd7f65e9274e07fe2c81d40c67c6
       date: 2025-08-25

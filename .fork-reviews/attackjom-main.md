@@ -1,10 +1,10 @@
 # attackjom/main review ledger
 
 Base: `upstream/main` at `ba4312fc`
-Tip: `attackjom/main` at `c6df90c5`
+Tip: `attackjom/main` at `c91c4320`
 Review branch: `codex/import-attackjom-review`
 Tracker: [`.fork-tracking.yml`](/Users/vinepb/Developer/turugrura/laro-calc/.fork-tracking.yml)
-Last updated: `2026-03-16`
+Last updated: `2026-03-23`
 
 This ledger tracks source commits from `upstream/main..attackjom/main`.
 It is source-commit centric: imported source commits record the local commit that carried the change into this repo.
@@ -258,3 +258,6 @@ Status legend:
 - [pending] `48b40b1f` `2026-03-12` Update
 - [deferred] `c6df90c5` `2026-03-13` Ring of Frozen Promise
   notes: mixed enchant-table support and topbar changelog; review after the next data-only batch
+- [pending] `d4684a67` `2026-03-21` Fix 7 Hit / Sec
+- [deferred] `c91c4320` `2026-03-21` Update Enchant Exotic Temporal Armor
+  notes: mixed enchant, skill-name, job formula, topbar, and item data scope
