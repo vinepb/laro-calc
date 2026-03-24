@@ -268,6 +268,44 @@ describe('Calculator', () => {
             criDmg: ['11===15'],
           },
         },
+        600012: {
+          id: 600012,
+          aegisName: 'IW_B_T_Sword',
+          name: 'Ignition Wave Booster Two-Handed Sword',
+          unidName: 'Two-Handed Sword',
+          resName: 'IW_B_T_Sword',
+          description: 'Ignition Wave Booster Two-Handed Sword',
+          slots: 0,
+          itemTypeId: ItemTypeId.WEAPON,
+          itemSubTypeId: 258,
+          itemLevel: 4,
+          attack: 250,
+          defense: null,
+          weight: 0,
+          requiredLevel: 100,
+          location: null,
+          compositionPos: null,
+          usableClass: ['RuneKnight'],
+          autoAttackProcs: [
+            {
+              skillName: 'Sonic Wave',
+              baseSkillLevel: 0,
+              chanceScriptKey: 'chance__proc_ignition_wave_booster_two_handed_sword',
+              useLearnedLevelIfHigher: true,
+              requiresMelee: true,
+            },
+          ],
+          script: {
+            cri: ['15', '11===15'],
+            atk: ['1---3', 'level:15(1-195)---3'],
+            aspdPercent: ['REFINE[7]LEARN_SKILL[Two hand Quicken==1]---1'],
+            criDmg: ['9===10'],
+            'Ignition Break': ['9===25', '13===15'],
+            'Sonic Wave': ['9===25', '13===15'],
+            'chance__proc_ignition_wave_booster_two_handed_sword': ['9===7'],
+            p_size_all: ['11===15'],
+          },
+        },
         24288: {
           id: 24288,
           aegisName: 'S_Runeknight_Weapon',
@@ -507,6 +545,44 @@ describe('Calculator', () => {
       const highLearned = buildRuneKnightCalculator({ weaponId: 600009, weaponRefine: 9, learnedSonicWave: 10 });
 
       expect(highLearned.autoAttackProcSummaries[0].dps).toBeGreaterThan(baseProc.autoAttackProcSummaries[0].dps);
+    });
+
+    it('does not add Ignition Wave Booster proc dps below refine 9', () => {
+      const dmg = buildRuneKnightCalculator({ weaponId: 600012, weaponRefine: 8, learnedSonicWave: 10 });
+
+      expect(dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Ignition Wave Booster Two-Handed Sword')).toBeUndefined();
+      expect(dmg.autoAttackProcDps).toBe(0);
+      expect(dmg.autoAttackTotalDps).toBe(dmg.basicDps);
+    });
+
+    it('does not add Ignition Wave Booster proc dps when Sonic Wave is not learned', () => {
+      const dmg = buildRuneKnightCalculator({ weaponId: 600012, weaponRefine: 9, learnedSonicWave: 0 });
+
+      expect(dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Ignition Wave Booster Two-Handed Sword')).toBeUndefined();
+      expect(dmg.autoAttackProcDps).toBe(0);
+      expect(dmg.autoAttackTotalDps).toBe(dmg.basicDps);
+    });
+
+    it('adds Ignition Wave Booster proc dps at refine 9 using the learned Sonic Wave level', () => {
+      const dmg = buildRuneKnightCalculator({ weaponId: 600012, weaponRefine: 9, learnedSonicWave: 1 });
+      const sonicWaveProc = dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Ignition Wave Booster Two-Handed Sword');
+
+      expect(sonicWaveProc).toBeDefined();
+      expect(sonicWaveProc.skillLabel).toBe('Sonic Wave');
+      expect(sonicWaveProc.chancePercent).toBe(7);
+      expect(sonicWaveProc.dps).toBeGreaterThan(0);
+      expect(dmg.autoAttackTotalDps).toBe(dmg.basicDps + dmg.autoAttackProcDps);
+    });
+
+    it('scales Ignition Wave Booster proc dps with the learned Sonic Wave level', () => {
+      const lowLearned = buildRuneKnightCalculator({ weaponId: 600012, weaponRefine: 9, learnedSonicWave: 1 });
+      const highLearned = buildRuneKnightCalculator({ weaponId: 600012, weaponRefine: 9, learnedSonicWave: 10 });
+      const lowLearnedProc = lowLearned.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Ignition Wave Booster Two-Handed Sword');
+      const highLearnedProc = highLearned.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Ignition Wave Booster Two-Handed Sword');
+
+      expect(lowLearnedProc).toBeDefined();
+      expect(highLearnedProc).toBeDefined();
+      expect(highLearnedProc.dps).toBeGreaterThan(lowLearnedProc.dps);
     });
 
     it('does not add Lux Anima proc dps while the buff is inactive', () => {
