@@ -167,13 +167,14 @@ Status legend:
 - [imported] `4b07efe4` `2025-09-17` Add Astraea-LT Set
   local: `b44cc779`
   notes: selectively imported the item-data change
-- [deferred] `490d8f48` `2025-09-17` Add GGT Item
-  notes: mixed item/app scope; review later after the data-only imports
+- [likely-skip] `490d8f48` `2025-09-17` Add GGT Item
+  notes: reviewed after later imports; its item, image, and `Mob_Scarf_LT` enchant-table payload were already present on this branch
 - [imported] `68b03ec4` `2025-09-17` Update item.json
   local: `705a3531`
   notes: selectively imported the item-data change
-- [deferred] `f12d4e78` `2025-09-17` Update GGT Item 17 sep 2025
-  notes: mixed item/app scope; review later after the data-only imports
+- [imported] `f12d4e78` `2025-09-17` Update GGT Item 17 sep 2025
+  local: `050efb24`
+  notes: selectively imported item `450385` and item IDs `1270148`-`1270159` plus matching images; left the topbar changelog out
 - [deferred] `e8e22624` `2025-09-17` Add New Bonus: Hit Physical Damage
   notes: mixed scope; review later
 - [deferred] `1ac34f2f` `2025-09-17` Add Pyroclastic to lv275, Homun Tempering
@@ -191,10 +192,11 @@ Status legend:
   local: `b5898ed2`
   notes: selectively imported `src/app/constants/enchant_item/chapter1.ts` and the `_enchant_table.ts` import wiring needed by the Chapter 1 armor enchant entries; the source commit's item and image payloads were still left out
 - [likely-skip] `58b6f6c8` `2025-09-18` 123
-- [deferred] `2b944406` `2025-09-18` Add Chapter 1 Enchant Part 3
-  notes: mixed item/app scope; review later after the data-only imports
-- [deferred] `87d26581` `2025-09-18` Add GGT Varmundt Circlet
-  notes: mixed item/app scope; review later after the data-only imports
+- [imported] `2b944406` `2025-09-18` Add Chapter 1 Enchant Part 3
+  local: `050efb24`
+  notes: selectively imported item IDs `313939`-`313948`, `420220`, and `420269` plus matching images; left the HTML change out
+- [likely-skip] `87d26581` `2025-09-18` Add GGT Varmundt Circlet
+  notes: reviewed after later imports; its item and image payload were already present on this branch, leaving only a topbar changelog change
 - [deferred] `b08dfae8` `2025-09-18` Add Jack Frost Nova , Crystal Impact
   notes: mixed item/app scope; review later after the data-only imports
 - [likely-skip] `fa2e323e` `2025-09-18` Update app.topbar.component.ts

@@ -67,6 +67,6 @@ sources:
     review_status: reviewed-through-tip
     notes: >
       Branch codex/import-attackjom-review completed a full chronological
-      review through the current tip. The review ledger records 53 selectively
-      imported source commits, 45 likely-skipped commits, and 113 deferred
+      review through the current tip. The review ledger records 55 selectively
+      imported source commits, 47 likely-skipped commits, and 109 deferred
       commits that still need deeper follow-up review before import.
