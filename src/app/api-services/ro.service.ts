@@ -58,6 +58,8 @@ export class RoService {
 
           if (!script) continue;
           for (const bonusKey of Object.keys(script)) {
+            if (item.autoAttackProcs?.some((proc) => proc.chanceScriptKey === bonusKey)) continue;
+
             const realKey = bonusKey
               .replace('fix_vct__', '')
               .replace('vct__', '')

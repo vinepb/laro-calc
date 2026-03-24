@@ -128,6 +128,7 @@ export class ItemSearchComponent implements OnInit, OnDestroy {
             (skillName) =>
               item.script[skillName] ||
               item.script[`chance__${skillName}`] ||
+              item.autoAttackProcs?.some((proc) => proc.skillName === skillName) ||
               item.script[`cd__${skillName}`] ||
               item.script[`vct__${skillName}`] ||
               item.script[`fct__${skillName}`] ||

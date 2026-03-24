@@ -148,6 +148,7 @@ describe('Calculator', () => {
     const buildRuneKnightCalculator = (params?: {
       weaponId?: number;
       weaponRefine?: number;
+      weaponCard1Id?: number;
       shadowWeaponId?: number;
       shadowWeaponRefine?: number;
       shadowShieldId?: number;
@@ -163,6 +164,7 @@ describe('Calculator', () => {
       const {
         weaponId = 10,
         weaponRefine = 0,
+        weaponCard1Id = 0,
         shadowWeaponId = 0,
         shadowWeaponRefine = 0,
         shadowShieldId = 0,
@@ -199,6 +201,37 @@ describe('Calculator', () => {
             atk: ['25'],
           },
         },
+        31024: {
+          id: 31024,
+          aegisName: 'As_Bdy_Knight_Card',
+          name: 'Immortal Bloody Knight Card',
+          unidName: 'Immortal Bloody Knight Card',
+          resName: '이름없는카드',
+          description: 'Immortal Bloody Knight Card',
+          slots: 0,
+          itemTypeId: ItemTypeId.CARD,
+          itemSubTypeId: 0,
+          itemLevel: null,
+          attack: null,
+          defense: null,
+          weight: 1,
+          requiredLevel: null,
+          location: null,
+          compositionPos: 0,
+          usableClass: ['all'],
+          autoAttackProcs: [
+            {
+              skillName: 'Ignition Break',
+              baseSkillLevel: 5,
+              chanceScriptKey: 'chance__proc_immortal_bloody_knight_card',
+              requiresMelee: true,
+            },
+          ],
+          script: {
+            atkPercent: ['10'],
+            'chance__proc_immortal_bloody_knight_card': ['2'],
+          },
+        },
         600009: {
           id: 600009,
           aegisName: 'Up_Oriental_Sword',
@@ -221,7 +254,7 @@ describe('Calculator', () => {
             {
               skillName: 'Sonic Wave',
               baseSkillLevel: 2,
-              chanceScriptKey: 'chance__Sonic Wave',
+              chanceScriptKey: 'chance__proc_patent_oriental_sword',
               useLearnedLevelIfHigher: true,
               requiresMelee: true,
             },
@@ -229,7 +262,7 @@ describe('Calculator', () => {
           script: {
             atk: ['2---15'],
             'Sonic Wave': ['3---10'],
-            'chance__Sonic Wave': ['9===7'],
+            'chance__proc_patent_oriental_sword': ['9===7'],
             aspdPercent: ['7===10'],
             cri: ['11===15'],
             criDmg: ['11===15'],
@@ -257,12 +290,12 @@ describe('Calculator', () => {
             {
               skillName: 'Ignition Break',
               baseSkillLevel: 3,
-              chanceScriptKey: 'chance__Ignition Break',
+              chanceScriptKey: 'chance__proc_rune_knight_weapon_shadow',
             },
           ],
           script: {
             'Sonic Wave': ['20', '1---5'],
-            'chance__Ignition Break': ['EQUIP[Rune Knight Shield Shadow]===3'],
+            'chance__proc_rune_knight_weapon_shadow': ['EQUIP[Rune Knight Shield Shadow]===3'],
             atk: ['1---1'],
             matk: ['1---1'],
           },
@@ -312,14 +345,14 @@ describe('Calculator', () => {
             {
               skillName: 'Ignition Break',
               baseSkillLevel: 3,
-              chanceScriptKey: 'chance__Ignition Break',
+              chanceScriptKey: 'chance__proc_ignition_shadow_weapon',
               useLearnedLevelIfHigher: true,
               requiresMelee: true,
             },
           ],
           script: {
             'Ignition Break': ['EQUIP[Ignition Shadow Pendant&&Ignition Shadow Earring]REFINE[shadowWeapon,shadowPendant,shadowEarring==1]---1'],
-            'chance__Ignition Break': ['2', '7===1', '9===2'],
+            'chance__proc_ignition_shadow_weapon': ['2', '7===1', '9===2'],
             'p_pene_race_all': ['EQUIP[Rune Knight Shield Shadow]40', 'EQUIP[Rune Knight Shield Shadow]REFINE[shadowWeapon,shadowShield==1]---1'],
             atk: ['1---1'],
             matk: ['1---1'],
@@ -411,6 +444,7 @@ describe('Calculator', () => {
       model.luk = 60;
       model.weapon = weaponId;
       model.weaponRefine = weaponRefine;
+      model.weaponCard1 = weaponCard1Id;
       model.shadowWeapon = shadowWeaponId;
       model.shadowWeaponRefine = shadowWeaponRefine;
       model.shadowShield = shadowShieldId;
@@ -491,6 +525,19 @@ describe('Calculator', () => {
       expect(dmg.autoAttackTotalDps).toBe(dmg.basicDps + dmg.autoAttackProcDps);
     });
 
+    it('adds Immortal Bloody Knight Card proc dps from the weapon card slot', () => {
+      const dmg = buildRuneKnightCalculator({
+        weaponId: 10,
+        weaponCard1Id: 31024,
+      });
+      const ignitionProc = dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Immortal Bloody Knight Card');
+
+      expect(ignitionProc).toBeDefined();
+      expect(ignitionProc.skillLabel).toBe('Ignition Break');
+      expect(ignitionProc.chancePercent).toBe(2);
+      expect(ignitionProc.dps).toBeGreaterThan(0);
+    });
+
     it('adds Ignition Shadow Weapon proc dps for the ignition shadow set', () => {
       const dmg = buildRuneKnightCalculator({
         weaponId: 10,
@@ -550,6 +597,23 @@ describe('Calculator', () => {
       expect(ignitionProc.skillLabel).toBe('Ignition Break');
       expect(ignitionProc.chancePercent).toBe(3);
       expect(ignitionProc.dps).toBeGreaterThan(0);
+    });
+
+    it('keeps separate Ignition Break proc sources independent when the card and shadow weapon are equipped together', () => {
+      const dmg = buildRuneKnightCalculator({
+        weaponId: 10,
+        weaponCard1Id: 31024,
+        shadowWeaponId: 24443,
+        shadowWeaponRefine: 9,
+      });
+      const cardProc = dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Immortal Bloody Knight Card');
+      const shadowProc = dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Ignition Shadow Weapon');
+
+      expect(cardProc).toBeDefined();
+      expect(cardProc.chancePercent).toBe(2);
+      expect(shadowProc).toBeDefined();
+      expect(shadowProc.chancePercent).toBe(5);
+      expect(dmg.autoAttackProcSummaries.length).toBe(2);
     });
   });
 });
