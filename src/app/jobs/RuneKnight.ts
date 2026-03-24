@@ -176,7 +176,7 @@ export class RuneKnight extends LordKnight {
       name: 'Ignition Break',
       label: 'Ignition Break Lv5',
       value: 'Ignition Break==5',
-      values: ['[Improved 2nd] Ignition Break==5'],
+      values: ['[Improved 2nd] Ignition Break==5', ...Array.from({ length: 5 }, (_, index) => `Ignition Break==${index + 1}`)],
       acd: 0,
       fct: 0,
       vct: 1,

@@ -148,13 +148,31 @@ describe('Calculator', () => {
     const buildRuneKnightCalculator = (params?: {
       weaponId?: number;
       weaponRefine?: number;
+      shadowWeaponId?: number;
+      shadowWeaponRefine?: number;
+      shadowShieldId?: number;
+      shadowShieldRefine?: number;
+      shadowPendantId?: number;
+      shadowPendantRefine?: number;
+      shadowEarringId?: number;
+      shadowEarringRefine?: number;
       learnedSonicWave?: number;
+      learnedIgnitionBreak?: number;
       luxAnima?: boolean;
     }) => {
       const {
         weaponId = 10,
         weaponRefine = 0,
+        shadowWeaponId = 0,
+        shadowWeaponRefine = 0,
+        shadowShieldId = 0,
+        shadowShieldRefine = 0,
+        shadowPendantId = 0,
+        shadowPendantRefine = 0,
+        shadowEarringId = 0,
+        shadowEarringRefine = 0,
         learnedSonicWave = 0,
+        learnedIgnitionBreak = 0,
         luxAnima = false,
       } = params || {};
 
@@ -217,6 +235,140 @@ describe('Calculator', () => {
             criDmg: ['11===15'],
           },
         },
+        24288: {
+          id: 24288,
+          aegisName: 'S_Runeknight_Weapon',
+          name: 'Rune Knight Weapon Shadow',
+          unidName: 'Shadow Weapon',
+          resName: '웨폰쉐도우',
+          description: 'Rune Knight Weapon Shadow',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 280,
+          itemLevel: null,
+          attack: null,
+          defense: null,
+          weight: 0,
+          requiredLevel: 99,
+          location: 'Weapon',
+          compositionPos: null,
+          usableClass: ['RuneKnight'],
+          autoAttackProcs: [
+            {
+              skillName: 'Ignition Break',
+              baseSkillLevel: 3,
+              chanceScriptKey: 'chance__Ignition Break',
+            },
+          ],
+          script: {
+            'Sonic Wave': ['20', '1---5'],
+            'chance__Ignition Break': ['EQUIP[Rune Knight Shield Shadow]===3'],
+            atk: ['1---1'],
+            matk: ['1---1'],
+          },
+        },
+        24301: {
+          id: 24301,
+          aegisName: 'S_Runeknight_Shield',
+          name: 'Rune Knight Shield Shadow',
+          unidName: 'Shadow Shield',
+          resName: '쉴드쉐도우',
+          description: 'Rune Knight Shield Shadow',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 527,
+          itemLevel: null,
+          attack: null,
+          defense: null,
+          weight: 0,
+          requiredLevel: 99,
+          location: 'Shield',
+          compositionPos: null,
+          usableClass: ['RuneKnight'],
+          script: {
+            aspdPercent: ['ACTIVE_SKILL[Enchant Blade]1---1'],
+            aspd: ['ACTIVE_SKILL[Enchant Blade]7===1', 'ACTIVE_SKILL[Enchant Blade]9===1'],
+          },
+        },
+        24443: {
+          id: 24443,
+          aegisName: 'S_Ignition_Weapon',
+          name: 'Ignition Shadow Weapon',
+          unidName: 'Shadow Weapon',
+          resName: '웨폰쉐도우',
+          description: 'Ignition Shadow Weapon',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 280,
+          itemLevel: null,
+          attack: null,
+          defense: null,
+          weight: 0,
+          requiredLevel: 99,
+          location: 'Weapon',
+          compositionPos: null,
+          usableClass: ['RuneKnight'],
+          autoAttackProcs: [
+            {
+              skillName: 'Ignition Break',
+              baseSkillLevel: 3,
+              chanceScriptKey: 'chance__Ignition Break',
+              useLearnedLevelIfHigher: true,
+              requiresMelee: true,
+            },
+          ],
+          script: {
+            'Ignition Break': ['EQUIP[Ignition Shadow Pendant&&Ignition Shadow Earring]REFINE[shadowWeapon,shadowPendant,shadowEarring==1]---1'],
+            'chance__Ignition Break': ['2', '7===1', '9===2'],
+            'p_pene_race_all': ['EQUIP[Rune Knight Shield Shadow]40', 'EQUIP[Rune Knight Shield Shadow]REFINE[shadowWeapon,shadowShield==1]---1'],
+            atk: ['1---1'],
+            matk: ['1---1'],
+          },
+        },
+        24444: {
+          id: 24444,
+          aegisName: 'S_Ignition_Pendant',
+          name: 'Ignition Shadow Pendant',
+          unidName: 'Shadow Pendant',
+          resName: '펜던트쉐도우',
+          description: 'Ignition Shadow Pendant',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 530,
+          itemLevel: null,
+          attack: null,
+          defense: null,
+          weight: 0,
+          requiredLevel: 99,
+          location: 'AccessoryLeft',
+          compositionPos: null,
+          usableClass: ['RuneKnight'],
+          script: {
+            'Ignition Break': ['5', '2---2'],
+          },
+        },
+        24445: {
+          id: 24445,
+          aegisName: 'S_Ignition_Earing',
+          name: 'Ignition Shadow Earring',
+          unidName: 'Shadow Earring',
+          resName: '이어링쉐도우',
+          description: 'Ignition Shadow Earring',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 529,
+          itemLevel: null,
+          attack: null,
+          defense: null,
+          weight: 0,
+          requiredLevel: 99,
+          location: 'AccessoryRight',
+          compositionPos: null,
+          usableClass: ['RuneKnight'],
+          script: {
+            'cd__Ignition Break': ['0.2', '3---0.1'],
+          },
+        },
       } as unknown as Record<number, ItemModel>;
 
       const runeKnight = new RuneKnight();
@@ -230,6 +382,7 @@ describe('Calculator', () => {
       const activeSkillIds = runeKnight.activeSkills.map((skill) => skill.dropdown[0]?.value || 0);
       const passiveSkillIds = runeKnight.passiveSkills.map((skill) => skill.dropdown[0]?.value || 0);
       const luxAnimaIndex = runeKnight.activeSkills.findIndex((skill) => skill.name === 'Lux Anima Runestone');
+      const ignitionBreakIndex = runeKnight.passiveSkills.findIndex((skill) => skill.name === 'Ignition Break');
       const sonicWaveIndex = runeKnight.passiveSkills.findIndex((skill) => skill.name === 'Sonic Wave');
 
       if (luxAnima && luxAnimaIndex >= 0) {
@@ -237,6 +390,9 @@ describe('Calculator', () => {
       }
       if (learnedSonicWave > 0 && sonicWaveIndex >= 0) {
         passiveSkillIds[sonicWaveIndex] = learnedSonicWave;
+      }
+      if (learnedIgnitionBreak > 0 && ignitionBreakIndex >= 0) {
+        passiveSkillIds[ignitionBreakIndex] = learnedIgnitionBreak;
       }
 
       const { equipAtks, masteryAtks, activeSkillNames, learnedSkillMap } = runeKnight
@@ -255,6 +411,14 @@ describe('Calculator', () => {
       model.luk = 60;
       model.weapon = weaponId;
       model.weaponRefine = weaponRefine;
+      model.shadowWeapon = shadowWeaponId;
+      model.shadowWeaponRefine = shadowWeaponRefine;
+      model.shadowShield = shadowShieldId;
+      model.shadowShieldRefine = shadowShieldRefine;
+      model.shadowPendant = shadowPendantId;
+      model.shadowPendantRefine = shadowPendantRefine;
+      model.shadowEarring = shadowEarringId;
+      model.shadowEarringRefine = shadowEarringRefine;
       model.selectedAtkSkill = 'Sonic Wave==10';
 
       const calc = new Calculator();
@@ -325,6 +489,67 @@ describe('Calculator', () => {
       expect(stormBlastProc.chancePercent).toBe(15);
       expect(stormBlastProc.dps).toBeGreaterThan(0);
       expect(dmg.autoAttackTotalDps).toBe(dmg.basicDps + dmg.autoAttackProcDps);
+    });
+
+    it('adds Ignition Shadow Weapon proc dps for the ignition shadow set', () => {
+      const dmg = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24443,
+        shadowWeaponRefine: 9,
+        shadowPendantId: 24444,
+        shadowEarringId: 24445,
+      });
+      const ignitionProc = dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Ignition Shadow Weapon');
+
+      expect(ignitionProc).toBeDefined();
+      expect(ignitionProc.skillLabel).toBe('Ignition Break');
+      expect(ignitionProc.chancePercent).toBe(5);
+      expect(ignitionProc.dps).toBeGreaterThan(0);
+      expect(dmg.autoAttackTotalDps).toBe(dmg.basicDps + dmg.autoAttackProcDps);
+    });
+
+    it('uses the learned Ignition Break level when it is higher than level 3', () => {
+      const baseProc = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24443,
+        shadowWeaponRefine: 9,
+        shadowPendantId: 24444,
+        shadowEarringId: 24445,
+        learnedIgnitionBreak: 1,
+      });
+      const highLearned = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24443,
+        shadowWeaponRefine: 9,
+        shadowPendantId: 24444,
+        shadowEarringId: 24445,
+        learnedIgnitionBreak: 5,
+      });
+
+      expect(highLearned.autoAttackProcSummaries[0].dps).toBeGreaterThan(baseProc.autoAttackProcSummaries[0].dps);
+    });
+
+    it('does not add Rune Knight Weapon Shadow proc dps without the shield set', () => {
+      const dmg = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24288,
+      });
+
+      expect(dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Rune Knight Weapon Shadow')).toBeUndefined();
+    });
+
+    it('adds Rune Knight Weapon Shadow proc dps with the shield set equipped', () => {
+      const dmg = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24288,
+        shadowShieldId: 24301,
+      });
+      const ignitionProc = dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Rune Knight Weapon Shadow');
+
+      expect(ignitionProc).toBeDefined();
+      expect(ignitionProc.skillLabel).toBe('Ignition Break');
+      expect(ignitionProc.chancePercent).toBe(3);
+      expect(ignitionProc.dps).toBeGreaterThan(0);
     });
   });
 });
