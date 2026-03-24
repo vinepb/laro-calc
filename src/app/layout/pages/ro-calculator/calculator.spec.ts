@@ -149,10 +149,14 @@ describe('Calculator', () => {
       weaponId?: number;
       weaponRefine?: number;
       weaponCard1Id?: number;
+      shadowArmorId?: number;
+      shadowArmorRefine?: number;
       shadowWeaponId?: number;
       shadowWeaponRefine?: number;
       shadowShieldId?: number;
       shadowShieldRefine?: number;
+      shadowBootId?: number;
+      shadowBootRefine?: number;
       shadowPendantId?: number;
       shadowPendantRefine?: number;
       shadowEarringId?: number;
@@ -165,10 +169,14 @@ describe('Calculator', () => {
         weaponId = 10,
         weaponRefine = 0,
         weaponCard1Id = 0,
+        shadowArmorId = 0,
+        shadowArmorRefine = 0,
         shadowWeaponId = 0,
         shadowWeaponRefine = 0,
         shadowShieldId = 0,
         shadowShieldRefine = 0,
+        shadowBootId = 0,
+        shadowBootRefine = 0,
         shadowPendantId = 0,
         shadowPendantRefine = 0,
         shadowEarringId = 0,
@@ -268,6 +276,39 @@ describe('Calculator', () => {
             criDmg: ['11===15'],
           },
         },
+        21049: {
+          id: 21049,
+          aegisName: 'Evt_Oriental_Sword',
+          name: 'Eastern Sword [2]',
+          unidName: 'Two-Handed Sword',
+          resName: '오니마루',
+          description: 'Eastern Sword [2]',
+          slots: 2,
+          itemTypeId: ItemTypeId.WEAPON,
+          itemSubTypeId: 258,
+          itemLevel: 4,
+          attack: 180,
+          defense: null,
+          weight: 0,
+          requiredLevel: 99,
+          location: null,
+          compositionPos: null,
+          usableClass: ['RuneKnight'],
+          autoAttackProcs: [
+            {
+              skillName: 'Sonic Wave',
+              baseSkillLevel: 2,
+              chanceScriptKey: 'chance__proc_evt_oriental_sword',
+              useLearnedLevelIfHigher: true,
+              requiresMelee: true,
+            },
+          ],
+          script: {
+            atk: ['2---10'],
+            'Sonic Wave': ['3---10'],
+            'chance__proc_evt_oriental_sword': ['7===7'],
+          },
+        },
         600012: {
           id: 600012,
           aegisName: 'IW_B_T_Sword',
@@ -304,6 +345,159 @@ describe('Calculator', () => {
             'Sonic Wave': ['9===25', '13===15'],
             'chance__proc_ignition_wave_booster_two_handed_sword': ['9===7'],
             p_size_all: ['11===15'],
+          },
+        },
+        24584: {
+          id: 24584,
+          aegisName: 'S_Booster_Armor',
+          name: 'Booster Shadow Armor',
+          unidName: 'Shadow Armor',
+          resName: '아머쉐도우3',
+          description: 'Booster Shadow Armor',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 526,
+          itemLevel: null,
+          attack: null,
+          defense: 0,
+          weight: 0,
+          requiredLevel: 100,
+          location: 'Armor',
+          compositionPos: null,
+          usableClass: ['all'],
+          script: {
+            hp: ['100'],
+            aspd: ['1'],
+          },
+        },
+        24585: {
+          id: 24585,
+          aegisName: 'S_Booster_Shield',
+          name: 'Booster Shadow Shield',
+          unidName: 'Shadow Shield',
+          resName: '쉴드쉐도우3',
+          description: 'Booster Shadow Shield',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 527,
+          itemLevel: null,
+          attack: null,
+          defense: 0,
+          weight: 0,
+          requiredLevel: 100,
+          location: 'Shield',
+          compositionPos: null,
+          usableClass: ['all'],
+          script: {
+            hp: ['100'],
+            vct: ['10'],
+          },
+        },
+        24586: {
+          id: 24586,
+          aegisName: 'S_Booster_Shoes',
+          name: 'Booster Shadow Shoes',
+          unidName: 'Shadow Shoes',
+          resName: '슈즈쉐도우3',
+          description: 'Booster Shadow Shoes',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 528,
+          itemLevel: null,
+          attack: null,
+          defense: 0,
+          weight: 0,
+          requiredLevel: 100,
+          location: 'Shoes',
+          compositionPos: null,
+          usableClass: ['all'],
+          script: {
+            hp: ['100'],
+            aspdPercent: ['7'],
+          },
+        },
+        24587: {
+          id: 24587,
+          aegisName: 'S_Booster_Earing',
+          name: 'Booster Shadow Earring',
+          unidName: 'Shadow Earring',
+          resName: '이어링쉐도우3',
+          description: 'Booster Shadow Earring',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 529,
+          itemLevel: null,
+          attack: null,
+          defense: 0,
+          weight: 0,
+          requiredLevel: 100,
+          location: 'AccessoryRight',
+          compositionPos: null,
+          usableClass: ['all'],
+          script: {
+            hp: ['100'],
+            matk: ['15'],
+          },
+        },
+        24588: {
+          id: 24588,
+          aegisName: 'S_Booster_Pandent',
+          name: 'Booster Shadow Pendant',
+          unidName: 'Shadow Pendant',
+          resName: '펜던트쉐도우3',
+          description: 'Booster Shadow Pendant',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 530,
+          itemLevel: null,
+          attack: null,
+          defense: 0,
+          weight: 0,
+          requiredLevel: 100,
+          location: 'AccessoryLeft',
+          compositionPos: null,
+          usableClass: ['all'],
+          script: {
+            hp: ['100'],
+            atk: ['15'],
+          },
+        },
+        24589: {
+          id: 24589,
+          aegisName: 'S_RK_B_Weapon',
+          name: 'Rune Knight Booster Shadow Weapon',
+          unidName: 'Shadow Weapon',
+          resName: '웨폰쉐도우3',
+          description: 'Rune Knight Booster Shadow Weapon',
+          slots: 0,
+          itemTypeId: 10,
+          itemSubTypeId: 280,
+          itemLevel: null,
+          attack: null,
+          defense: null,
+          weight: 0,
+          requiredLevel: 100,
+          location: 'Weapon',
+          compositionPos: null,
+          usableClass: ['RuneKnight'],
+          autoAttackProcs: [
+            {
+              skillName: 'Ignition Break',
+              baseSkillLevel: 3,
+              chanceScriptKey: 'chance__proc_rune_knight_booster_shadow_weapon',
+              useLearnedLevelIfHigher: true,
+              requiresMelee: true,
+            },
+          ],
+          script: {
+            atk: ['1---1', '10'],
+            matk: ['1---1', '10'],
+            'cd__Ignition Break': ['EQUIP[Booster Shadow Armor&&Booster Shadow Shield&&Booster Shadow Shoes&&Booster Shadow Earring&&Booster Shadow Pendant]0.5'],
+            'chance__proc_rune_knight_booster_shadow_weapon': ['EQUIP[Booster Shadow Armor&&Booster Shadow Shield&&Booster Shadow Shoes&&Booster Shadow Earring&&Booster Shadow Pendant]===7'],
+            range: ['EQUIP[Booster Shadow Armor&&Booster Shadow Shield&&Booster Shadow Shoes&&Booster Shadow Earring&&Booster Shadow Pendant]15'],
+            acd: ['EQUIP[Booster Shadow Armor&&Booster Shadow Shield&&Booster Shadow Shoes&&Booster Shadow Earring&&Booster Shadow Pendant]15'],
+            p_pene_race_all: ['EQUIP[Booster Shadow Armor&&Booster Shadow Shield&&Booster Shadow Shoes&&Booster Shadow Earring&&Booster Shadow Pendant]70'],
+            m_pene_race_all: ['EQUIP[Booster Shadow Armor&&Booster Shadow Shield&&Booster Shadow Shoes&&Booster Shadow Earring&&Booster Shadow Pendant]70'],
           },
         },
         24288: {
@@ -483,10 +677,14 @@ describe('Calculator', () => {
       model.weapon = weaponId;
       model.weaponRefine = weaponRefine;
       model.weaponCard1 = weaponCard1Id;
+      model.shadowArmor = shadowArmorId;
+      model.shadowArmorRefine = shadowArmorRefine;
       model.shadowWeapon = shadowWeaponId;
       model.shadowWeaponRefine = shadowWeaponRefine;
       model.shadowShield = shadowShieldId;
       model.shadowShieldRefine = shadowShieldRefine;
+      model.shadowBoot = shadowBootId;
+      model.shadowBootRefine = shadowBootRefine;
       model.shadowPendant = shadowPendantId;
       model.shadowPendantRefine = shadowPendantRefine;
       model.shadowEarring = shadowEarringId;
@@ -585,6 +783,39 @@ describe('Calculator', () => {
       expect(highLearnedProc.dps).toBeGreaterThan(lowLearnedProc.dps);
     });
 
+    it('does not add Eastern Sword proc dps below refine 7', () => {
+      const dmg = buildRuneKnightCalculator({ weaponId: 21049, weaponRefine: 6 });
+
+      expect(dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Eastern Sword [2]')).toBeUndefined();
+      expect(dmg.autoAttackProcDps).toBe(0);
+      expect(dmg.autoAttackTotalDps).toBe(dmg.basicDps);
+    });
+
+    it('adds Eastern Sword proc dps at refine 7', () => {
+      const dmg = buildRuneKnightCalculator({ weaponId: 21049, weaponRefine: 7 });
+      const sonicWaveProc = dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Eastern Sword [2]');
+
+      expect(sonicWaveProc).toBeDefined();
+      expect(sonicWaveProc.skillLabel).toBe('Sonic Wave');
+      expect(sonicWaveProc.chancePercent).toBe(7);
+      expect(sonicWaveProc.dps).toBeGreaterThan(0);
+      expect(dmg.autoAttackTotalDps).toBe(dmg.basicDps + dmg.autoAttackProcDps);
+    });
+
+    it('uses level 2 Sonic Wave for Eastern Sword when the learned level is lower', () => {
+      const lowLearned = buildRuneKnightCalculator({ weaponId: 21049, weaponRefine: 7, learnedSonicWave: 1 });
+      const unlearned = buildRuneKnightCalculator({ weaponId: 21049, weaponRefine: 7, learnedSonicWave: 0 });
+
+      expect(lowLearned.autoAttackProcSummaries[0].dps).toBe(unlearned.autoAttackProcSummaries[0].dps);
+    });
+
+    it('uses the learned Sonic Wave level for Eastern Sword when it is higher than level 2', () => {
+      const baseProc = buildRuneKnightCalculator({ weaponId: 21049, weaponRefine: 7, learnedSonicWave: 1 });
+      const highLearned = buildRuneKnightCalculator({ weaponId: 21049, weaponRefine: 7, learnedSonicWave: 10 });
+
+      expect(highLearned.autoAttackProcSummaries[0].dps).toBeGreaterThan(baseProc.autoAttackProcSummaries[0].dps);
+    });
+
     it('does not add Lux Anima proc dps while the buff is inactive', () => {
       const dmg = buildRuneKnightCalculator({ weaponId: 10, luxAnima: false });
 
@@ -673,6 +904,62 @@ describe('Calculator', () => {
       expect(ignitionProc.skillLabel).toBe('Ignition Break');
       expect(ignitionProc.chancePercent).toBe(3);
       expect(ignitionProc.dps).toBeGreaterThan(0);
+    });
+
+    it('does not add Rune Knight Booster Shadow Weapon proc dps without the full booster shadow set', () => {
+      const dmg = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24589,
+        shadowArmorId: 24584,
+        shadowShieldId: 24585,
+        shadowBootId: 24586,
+        shadowEarringId: 24587,
+      });
+
+      expect(dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Rune Knight Booster Shadow Weapon')).toBeUndefined();
+    });
+
+    it('adds Rune Knight Booster Shadow Weapon proc dps with the full booster shadow set', () => {
+      const dmg = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24589,
+        shadowArmorId: 24584,
+        shadowShieldId: 24585,
+        shadowBootId: 24586,
+        shadowEarringId: 24587,
+        shadowPendantId: 24588,
+      });
+      const ignitionProc = dmg.autoAttackProcSummaries.find((proc) => proc.sourceLabel === 'Rune Knight Booster Shadow Weapon');
+
+      expect(ignitionProc).toBeDefined();
+      expect(ignitionProc.skillLabel).toBe('Ignition Break');
+      expect(ignitionProc.chancePercent).toBe(7);
+      expect(ignitionProc.dps).toBeGreaterThan(0);
+    });
+
+    it('uses the learned Ignition Break level for Rune Knight Booster Shadow Weapon when it is higher than level 3', () => {
+      const baseProc = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24589,
+        shadowArmorId: 24584,
+        shadowShieldId: 24585,
+        shadowBootId: 24586,
+        shadowEarringId: 24587,
+        shadowPendantId: 24588,
+        learnedIgnitionBreak: 1,
+      });
+      const highLearned = buildRuneKnightCalculator({
+        weaponId: 10,
+        shadowWeaponId: 24589,
+        shadowArmorId: 24584,
+        shadowShieldId: 24585,
+        shadowBootId: 24586,
+        shadowEarringId: 24587,
+        shadowPendantId: 24588,
+        learnedIgnitionBreak: 5,
+      });
+
+      expect(highLearned.autoAttackProcSummaries[0].dps).toBeGreaterThan(baseProc.autoAttackProcSummaries[0].dps);
     });
 
     it('keeps separate Ignition Break proc sources independent when the card and shadow weapon are equipped together', () => {
