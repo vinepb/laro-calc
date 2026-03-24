@@ -1,3 +1,5 @@
+import { AutoAttackProcDefinition } from './auto-attack-proc.model';
+
 export interface ItemModel {
   id: number;
   aegisName: string;
@@ -22,4 +24,5 @@ export interface ItemModel {
   usableClass?: string[];
   unusableClass?: string[];
   script: Record<string, any[]>;
+  autoAttackProcs?: AutoAttackProcDefinition[];
 }

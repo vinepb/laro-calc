@@ -2,6 +2,7 @@ import { ClassName } from './_class-name';
 import { ActiveSkillModel, AtkSkillFormulaInput, AtkSkillModel, DefForCalcModel, PassiveSkillModel } from './_character-base.abstract';
 import { LordKnight } from './LordKnight';
 import { ElementType } from '../constants/element-type.const';
+import { AutoAttackProcDefinition } from '../models/auto-attack-proc.model';
 import { AdditionalBonusInput, InfoForClass } from '../models/info-for-class.model';
 import { floor, round } from '../utils';
 
@@ -129,7 +130,7 @@ export class RuneKnight extends LordKnight {
       name: 'Sonic Wave',
       label: 'Sonic Wave Lv10',
       value: 'Sonic Wave==10',
-      values: ['[Improved 2nd] Sonic Wave==10'],
+      values: ['[Improved 2nd] Sonic Wave==10', ...Array.from({ length: 10 }, (_, index) => `Sonic Wave==${index + 1}`)],
       acd: 0.5,
       fct: 0,
       vct: 0,
@@ -668,6 +669,22 @@ export class RuneKnight extends LordKnight {
     }
 
     return 0;
+  }
+
+  override getAutoAttackProcs(): AutoAttackProcDefinition[] {
+    if (!this.isSkillActive('Lux Anima Runestone')) {
+      return [];
+    }
+
+    return [
+      {
+        skillName: 'Storm Blast',
+        baseSkillLevel: 1,
+        chancePercent: 15,
+        requiresMelee: true,
+        sourceLabel: 'Lux Anima Runestone',
+      },
+    ];
   }
 
   override getAdditionalBasicDmg(info: InfoForClass): number {

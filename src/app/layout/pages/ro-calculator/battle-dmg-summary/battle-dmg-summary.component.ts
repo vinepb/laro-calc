@@ -20,6 +20,12 @@ export class BattleDmgSummaryComponent {
 
   constructor() {}
 
+  getCompareProc(proc: any) {
+    return this.totalSummary2?.dmg?.autoAttackProcSummaries?.find((entry: any) => {
+      return entry.sourceLabel === proc.sourceLabel && entry.skillLabel === proc.skillLabel;
+    });
+  }
+
   onShowElementalTableClick() {
     this.showElementTableClick.emit(1);
   }
