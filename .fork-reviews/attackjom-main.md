@@ -4,7 +4,7 @@ Base: `upstream/main` at `ba4312fc`
 Tip: `attackjom/main` at `c91c4320`
 Review branch: `codex/import-attackjom-review`
 Tracker: [`.fork-tracking.yml`](/Users/vinepb/Developer/turugrura/laro-calc/.fork-tracking.yml)
-Last updated: `2026-03-23`
+Last updated: `2026-03-24`
 
 This ledger tracks source commits from `upstream/main..attackjom/main`.
 It is source-commit centric: imported source commits record the local commit that carried the change into this repo.
@@ -101,8 +101,8 @@ Status legend:
   notes: formula-only scope; review later with calculator validation
 - [deferred] `395ab73b` `2025-09-09` Finalize Shinkiro-Shiranui C4 skill
   notes: mixed scope; review later
-- [deferred] `c0695301` `2025-09-10` Update bp ggt data
-  notes: data/image-only scope left for later review
+- [likely-skip] `c0695301` `2025-09-10` Update bp ggt data
+  notes: attempted selective cherry-pick, but all affected item IDs and images were already present on this branch from later imports
 - [deferred] `c5f04ad1` `2025-09-10` Shadow slot 2
   notes: mixed scope; review later
 - [deferred] `103962b6` `2025-09-10` Update GGT Battle pass shadow
@@ -161,8 +161,9 @@ Status legend:
 - [likely-skip] `97587d01` `2025-09-16` Merge branch 'main' of https://github.com/attackjom/tong-calc-ro
 - [likely-skip] `4cb646de` `2025-09-16` Update app.topbar.component.ts
   notes: topbar-only change; low value for this branch relative to our local UI divergence
-- [deferred] `26578e16` `2025-09-17` Add Rising Circlet KRO
-  notes: data/image-only scope left for later review
+- [imported] `26578e16` `2025-09-17` Add Rising Circlet KRO
+  local: `ff6268fe`
+  notes: selectively imported item IDs `400715` and `9400715` plus their images; the monster row from this source commit was already present on this branch
 - [imported] `4b07efe4` `2025-09-17` Add Astraea-LT Set
   local: `b44cc779`
   notes: selectively imported the item-data change
@@ -179,14 +180,16 @@ Status legend:
   notes: formula-only scope; review later with calculator validation
 - [deferred] `0f5da0e6` `2025-09-17` Add Hit Physical enchant of Crown Dimension Helm
   notes: mixed item/app scope; review later after the data-only imports
-- [deferred] `cd23257e` `2025-09-18` KRO: Add Ch1 Armor
-  notes: data/image-only scope left for later review
+- [imported] `cd23257e` `2025-09-18` KRO: Add Ch1 Armor
+  local: `8885eeee`
+  notes: selectively imported item IDs `450440`, `450441`, `470333`-`470339`, `480545`, and `480546` plus their images; left parser artifacts out
 - [likely-skip] `a8b7b444` `2025-09-18` Update item_parser.py
 - [imported] `f9bafd7d` `2025-09-18` Add Chapter1 Enchanct part 1
   local: `e6306df3`
   notes: selectively imported the item-data change
-- [deferred] `3e6b7b56` `2025-09-18` Add Chapter1 Enchant part 2
-  notes: mixed item/app scope; review later after the data-only imports
+- [imported] `3e6b7b56` `2025-09-18` Add Chapter1 Enchant part 2
+  local: `b5898ed2`
+  notes: selectively imported `src/app/constants/enchant_item/chapter1.ts` and the `_enchant_table.ts` import wiring needed by the Chapter 1 armor enchant entries; the source commit's item and image payloads were still left out
 - [likely-skip] `58b6f6c8` `2025-09-18` 123
 - [deferred] `2b944406` `2025-09-18` Add Chapter 1 Enchant Part 3
   notes: mixed item/app scope; review later after the data-only imports
@@ -196,8 +199,9 @@ Status legend:
   notes: mixed item/app scope; review later after the data-only imports
 - [likely-skip] `fa2e323e` `2025-09-18` Update app.topbar.component.ts
   notes: topbar-only change; low value for this branch relative to our local UI divergence
-- [deferred] `085405cb` `2025-09-19` Update Monster (Biosphere, Deep F1, Deep Abyss, Oz dungeon)
-  notes: mixed monster/app scope; review later after the data-only imports
+- [imported] `085405cb` `2025-09-19` Update Monster (Biosphere, Deep F1, Deep Abyss, Oz dungeon)
+  local: `091a097a`
+  notes: selectively imported the missing monster IDs `21920`-`21943`, `22140`-`22155`, and `22252`-`22259`, `22261`; also imported the Chapter 1 armor enchant-table entries and left the parser-file churn out
 - [likely-skip] `f8e44d25` `2025-09-19` Fix duplicate Abyss Salamander
   notes: evaluated during cherry-pick; resolved to an empty change on this branch, so it was skipped
 - [likely-skip] `f99803b2` `2025-09-19` update topbar
@@ -226,8 +230,9 @@ Status legend:
 - [imported] `a38e3868` `2025-09-22` Fix Elemental Spirit Book
   local: `70f4ea51`
   notes: selectively imported the item-data change
-- [deferred] `fc080467` `2025-09-23` Add clock tower basement monster (GGT)
-  notes: mixed monster/app scope; review later after the data-only imports
+- [imported] `fc080467` `2025-09-23` Add clock tower basement monster (GGT)
+  local: `a797b62e`
+  notes: selectively imported the monster data and spawn-mapper update; left the topbar changelog out
 - [deferred] `1a72ec45` `2025-09-23` Add Feedback/Request Button
   notes: mixed scope; review later
 - [deferred] `7eb01d85` `2025-09-24` Fix Soul Asceitc Blessing of Fourdirection condition
@@ -239,8 +244,9 @@ Status legend:
 - [imported] `8c6f4318` `2025-09-26` Fix Nebula Shadow enchant (Size -> element)
   local: `81831fc2`
   notes: selectively imported the item-data change
-- [deferred] `1a559e1d` `2025-09-27` Update Zero cell monster
-  notes: mixed monster/app scope; review later after the data-only imports
+- [imported] `1a559e1d` `2025-09-27` Update Zero cell monster
+  local: `41700d1f`
+  notes: selectively imported the monster data and spawn-mapper update; left the topbar changelog out
 - [imported] `03d47c39` `2025-09-27` Fix Zero Cell monster to boss
   local: `91431cd6`
   notes: selectively imported the monster-data change
