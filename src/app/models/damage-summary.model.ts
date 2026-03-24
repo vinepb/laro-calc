@@ -1,3 +1,4 @@
+import { AutoAttackProcSummaryModel } from './auto-attack-proc.model';
 import { ElementType } from '../constants/element-type.const';
 
 export interface BasicDamageSummaryModel {
@@ -13,6 +14,9 @@ export interface BasicDamageSummaryModel {
   totalPene: number;
   accuracy: number;
   basicDps: number;
+  autoAttackProcSummaries: AutoAttackProcSummaryModel[];
+  autoAttackProcDps: number;
+  autoAttackTotalDps: number;
   pAtk: number;
   sMatk: number;
   cRate: number;

@@ -2,7 +2,8 @@ import { ElementMapper, ElementType, ItemTypeEnum, SizePenaltyMapper } from 'src
 import { SKILL_NAME } from 'src/app/constants/skill-name';
 import { Monster, Weapon } from 'src/app/domain';
 import { AtkSkillFormulaInput, AtkSkillModel, CharacterBase } from '../../../jobs/_character-base.abstract';
-import { BasicDamageSummaryModel, DamageSummaryModel, MiscModel, SkillDamageSummaryModel, SkillType } from '../../../models/damage-summary.model';
+import { AutoAttackProcDefinition, AutoAttackProcSummaryModel } from '../../../models/auto-attack-proc.model';
+import { BasicDamageSummaryModel, DamageSummaryModel, MiscModel, SkillAspdModel, SkillDamageSummaryModel, SkillType } from '../../../models/damage-summary.model';
 import { EquipmentSummaryModel } from '../../../models/equipment-summary.model';
 import { InfoForClass } from '../../../models/info-for-class.model';
 import { MainModel } from '../../../models/main.model';
@@ -22,6 +23,21 @@ interface DamageResultModel {
   canCri: boolean;
   criDmgToMonster: number;
 }
+
+interface ResolvedAutoAttackProcDefinition extends Omit<AutoAttackProcDefinition, 'chancePercent'> {
+  chancePercent: number;
+  sourceLabel: string;
+  skillValue: string;
+}
+
+interface SkillEvaluationResult {
+  skillName: string;
+  skillDmg: SkillDamageSummaryModel;
+  skillAspd?: SkillAspdModel;
+  perCastExpectedDamage: number;
+}
+
+type SkillEvaluationOutcome = SkillEvaluationResult | { invalidMsg: string; } | null;
 
 export class DamageCalculator {
   private readonly EDP_WEAPON_MULTIPLIER = 0.25;
@@ -50,6 +66,7 @@ export class DamageCalculator {
   private leftWeaponData: Weapon;
   private aspdPotion: number;
   private ammoPropertyAtk: ElementType;
+  private autoAttackProcs = [] as ResolvedAutoAttackProcDefinition[];
 
   private zeroSkillDmg: SkillDamageSummaryModel = {
     skillDamageLabel: '',
@@ -168,6 +185,12 @@ export class DamageCalculator {
 
   setAmmoPropertyAtk(p: ElementType) {
     this.ammoPropertyAtk = p;
+
+    return this;
+  }
+
+  setAutoAttackProcs(autoAttackProcs: ResolvedAutoAttackProcDefinition[]) {
+    this.autoAttackProcs = [...autoAttackProcs];
 
     return this;
   }
@@ -1147,6 +1170,303 @@ export class DamageCalculator {
     return { criMinDamage, criMaxDamage, sizePenalty: 100 };
   }
 
+  private findAtkSkill(skillValue: string) {
+    return this._class.atkSkills.find((a) => {
+      return a.value === skillValue
+        || (Array.isArray(a.values) && a.values.includes(skillValue))
+        || a.levelList?.findIndex((b) => b.value === skillValue) >= 0;
+    });
+  }
+
+  private evaluateSkill(args: {
+    skillValue: string;
+    propertyAtk: ElementType;
+    maxHp: number;
+    maxSp: number;
+    basicDmg: BasicDamageSummaryModel;
+    basicAspd: any;
+    actualBasicCriRate: number;
+    criShield: number;
+  }): SkillEvaluationOutcome {
+    const { skillValue, propertyAtk, maxHp, maxSp, basicDmg, basicAspd, actualBasicCriRate, criShield } = args;
+    const [, _skillName, skillLevelStr] = skillValue?.match(/(.+)==(\d+)/) ?? [];
+    const skillData = this.findAtkSkill(skillValue);
+    const isValidSkill = !!_skillName && !!skillLevelStr && typeof skillData?.formula === 'function';
+
+    if (!isValidSkill) return null;
+
+    const skillLevel = Number(skillLevelStr);
+    const {
+      formula,
+      part2,
+      baseCri: baseSkillCri = 0,
+      isMatk,
+      isMelee: _isMelee,
+      autoSpellChance = 1,
+      isHit100,
+      isIgnoreDef = false,
+      totalHit: _totalHit = 1,
+      name: skillName,
+      baseCriPercentage = 1,
+      customFormula,
+      getElement,
+      currentHpFn,
+      currentSpFn,
+      maxStack = 0,
+      forceCri = false,
+      verifyItemFn,
+    } = skillData;
+
+    const currentHp = typeof currentHpFn === 'function' ? currentHpFn(maxHp) : 0;
+    const currentSp = typeof currentSpFn === 'function' ? currentSpFn(maxSp) : 0;
+    const formulaParams: AtkSkillFormulaInput = {
+      ...this.infoForClass,
+      skillLevel,
+      maxHp,
+      maxSp,
+      currentHp,
+      currentSp,
+      stack: maxStack,
+    };
+
+    const invalidMsg = verifyItemFn && typeof verifyItemFn === 'function' ? verifyItemFn(formulaParams) : '';
+    if (invalidMsg) {
+      return { invalidMsg };
+    }
+
+    const _baseSkillDamage = formula(formulaParams) + this.getFlatDmg(skillName);
+    let baseSkillDamage = floor(_baseSkillDamage);
+
+    const _NoStackbaseSkillDamage = formula({ ...formulaParams, stack: 0 }) + this.getFlatDmg(skillName);
+    const noStackNaseSkillDamage = floor(_NoStackbaseSkillDamage);
+
+    const params = {
+      baseSkillDamage,
+      skillData,
+      weaponPropertyAtk: typeof getElement === 'function' && !!getElement ? getElement(skillValue) : propertyAtk,
+      sizePenalty: this.getSizePenalty(),
+      formulaParams,
+    };
+
+    let calculated: DamageResultModel;
+    let noStackMaxCriDamage = 0;
+    let noStackMaxDamage = 0;
+    let noStackMinCriDamage = 0;
+    let noStackMinDamage = 0;
+
+    if (skillName === 'Fist Spell' && typeof skillData.treatedAsSkillNameFn === 'function') {
+      const newSkillValue = skillData.treatedAsSkillNameFn(skillValue);
+      const newSkillData = this.findAtkSkill(newSkillValue);
+      if (newSkillData) {
+        calculated = this.calcMagicalSkillDamage({
+          ...params,
+          skillData: {
+            ...params.skillData,
+            formula: newSkillData.formula,
+            name: newSkillData.name,
+          },
+        });
+      }
+    } else if (customFormula && typeof customFormula === 'function') {
+      const skillPropertyAtk = typeof getElement === 'function' ? getElement(skillValue) : skillData.element || propertyAtk;
+      const propertyMultiplier = this.getPropertyMultiplier(skillPropertyAtk);
+
+      const d = customFormula({
+        ...formulaParams,
+        baseSkillDamage,
+        sizePenalty: this.getSizePenalty(),
+        propertyMultiplier,
+        ...this.getPhisicalDefData(),
+      });
+      calculated = {
+        canCri: false,
+        minDamage: d,
+        maxDamage: d,
+        rawMinNoCri: d,
+        rawMaxNoCri: d,
+        propertyAtk: skillPropertyAtk,
+        propertyMultiplier: propertyMultiplier,
+        avgCriDamage: d,
+        avgNoCriDamage: d,
+        criDmgToMonster: d,
+        sizePenalty: this.getSizePenalty(),
+      };
+    } else {
+      calculated = isMatk ? this.calcMagicalSkillDamage(params) : this.calcPhysicalSkillDamage(params);
+
+      if (maxStack > 0) {
+        const noStackParam = { ...params, baseSkillDamage: noStackNaseSkillDamage };
+        const noStackCalculated = isMatk ? this.calcMagicalSkillDamage(noStackParam) : this.calcPhysicalSkillDamage(noStackParam);
+        noStackMinDamage = noStackCalculated.rawMinNoCri;
+        noStackMaxDamage = noStackCalculated.rawMaxNoCri;
+        noStackMaxCriDamage = noStackCalculated.minDamage;
+        noStackMinCriDamage = noStackCalculated.maxDamage;
+      }
+    }
+
+    let { minDamage, maxDamage } = calculated;
+    let skillPart2Label = '';
+    let skillMinDamage2 = 0;
+    let skillMaxDamage2 = 0;
+    if (typeof part2?.formula === 'function') {
+      const { formula: formula2, isMatk: isPart2Matk, isIncludeMain, label } = part2;
+      const _baseSkillDamage2 =
+        formula2({
+          ...this.infoForClass,
+          skillLevel,
+          maxHp,
+          maxSp,
+        }) + this.getFlatDmg(skillName);
+      const baseSkillDamage2 = floor(_baseSkillDamage2);
+      baseSkillDamage += baseSkillDamage2;
+
+      const params2 = {
+        baseSkillDamage: baseSkillDamage2,
+        skillData: { ...skillData, ...part2 },
+        weaponPropertyAtk: propertyAtk,
+        sizePenalty: this.getSizePenalty(),
+        skillLevel,
+      };
+
+      const calcPart2 = isPart2Matk ? this.calcMagicalSkillDamage(params2) : this.calcPhysicalSkillDamage(params2);
+
+      if (isIncludeMain) {
+        minDamage += calcPart2.minDamage;
+        maxDamage += calcPart2.maxDamage;
+      } else {
+        skillPart2Label = label;
+        skillMinDamage2 = calcPart2.minDamage;
+        skillMaxDamage2 = calcPart2.maxDamage;
+      }
+    }
+
+    const skillAspd = calcSkillAspd({ skillData, status: this.status, totalEquipStatus: this.totalBonus, skillLevel });
+
+    const isKatar = this.weaponData.data?.typeName === 'katar';
+    let actualCri = calculated.canCri
+      ? isKatar
+        ? Math.max(0, floor(actualBasicCriRate + baseSkillCri - criShield) * baseCriPercentage)
+        : Math.max(0, floor((actualBasicCriRate + baseSkillCri) * baseCriPercentage) - criShield)
+      : 0;
+    if (this.isForceSkillCri || forceCri) {
+      actualCri = 100;
+    }
+    actualCri = floor(actualCri);
+
+    const skillAccRate = isHit100 || isMatk ? 100 : basicDmg.accuracy;
+    const { avgCriDamage, avgNoCriDamage } = calculated;
+    const totalHit = typeof _totalHit === 'function' ? _totalHit(formulaParams) : _totalHit;
+    const isAutoSpell = autoSpellChance != 1;
+    const skillHitsPerSec = Math.min(skillAspd.totalHitPerSec || basicAspd.hitsPerSec, basicAspd.hitsPerSec);
+    const oneHitExpectedDamage = calcDmgDps({
+      min: avgNoCriDamage || minDamage + skillMinDamage2,
+      max: avgNoCriDamage || maxDamage + skillMaxDamage2,
+      cri: actualCri,
+      criDmg: avgCriDamage || maxDamage + skillMaxDamage2,
+      hitsPerSec: 1,
+      accRate: skillAccRate,
+    });
+    const skillDps = floor(totalHit * oneHitExpectedDamage * skillHitsPerSec * autoSpellChance);
+    const hitKill = Math.ceil(this.monster.data.hp / minDamage);
+
+    const totalPene = isMatk ? this.getTotalMagicalPene() : basicDmg.totalPene;
+    const isMelee = _isMelee != null && typeof _isMelee === 'function' ? _isMelee(this.weaponData.data.typeName) : !!_isMelee;
+    const label = calculated.canCri ? 'SkillCri' : 'Skill';
+    const { totalPeneRes, totalPeneMres } = this.getPeneResMres();
+
+    return {
+      skillName,
+      perCastExpectedDamage: floor(totalHit * oneHitExpectedDamage),
+      skillAspd,
+      skillDmg: {
+        skillDamageLabel: `${label}` + (maxStack > 0 ? ` ${maxStack} stacks` : ''),
+        skillNoStackDamageLabel: `${label} 0 stack`,
+        baseSkillDamage,
+        dmgType: isMatk ? SkillType.MAGICAL : isMelee ? SkillType.MELEE : SkillType.RANGE,
+        skillSizePenalty: round(calculated.sizePenalty * 100, 0),
+        skillTotalHit: totalHit,
+        skillPropertyAtk: calculated.propertyAtk,
+        skillPropertyMultiplier: calculated.propertyMultiplier,
+        skillCanCri: calculated.canCri,
+        skillTotalPene: isIgnoreDef ? 100 : totalPene,
+        skillTotalPeneLabel: isMatk ? 'Magic Penetration' : 'Physical Penetration',
+        skillTotalPeneRes: isMatk ? totalPeneMres : totalPeneRes,
+        skillTotalPeneResLabel: isMatk ? 'Magic Res Penetration' : 'Physical Res Penetration',
+        skillMinDamage: minDamage,
+        skillMaxDamage: maxDamage,
+        skillMinDamageNoCri: calculated.rawMinNoCri,
+        skillMaxDamageNoCri: calculated.rawMaxNoCri,
+        skillHit: skillData?.hit || 1,
+        skillAccuracy: skillAccRate,
+        skillDps,
+        skillHitKill: hitKill,
+        skillCriRateToMonster: actualCri,
+        skillCriDmgToMonster: calculated.criDmgToMonster,
+        skillPart2Label,
+        skillMinDamage2,
+        skillMaxDamage2,
+        maxStack,
+        noStackMaxCriDamage,
+        noStackMaxDamage,
+        noStackMinCriDamage,
+        noStackMinDamage,
+        isAutoSpell,
+        isUsedCurrentHP: typeof currentHpFn === 'function',
+        isUsedCurrentSP: typeof currentSpFn === 'function',
+        currentHp,
+        currentSp,
+        skillBonusFromEquipment: this.getSkillBonus(skillName),
+      },
+    };
+  }
+
+  private calculateAutoAttackProcSummaries(args: {
+    basicDmg: BasicDamageSummaryModel;
+    basicAspd: any;
+    propertyAtk: ElementType;
+    maxHp: number;
+    maxSp: number;
+    actualBasicCriRate: number;
+    criShield: number;
+  }): AutoAttackProcSummaryModel[] {
+    const { basicDmg, basicAspd, propertyAtk, maxHp, maxSp, actualBasicCriRate, criShield } = args;
+    const isMeleeBasicAttack = this.weaponData.data?.rangeType !== 'range';
+    const summaries = [] as AutoAttackProcSummaryModel[];
+
+    for (const proc of this.autoAttackProcs) {
+      if (proc.requiresMelee && !isMeleeBasicAttack) {
+        continue;
+      }
+
+      const evaluated = this.evaluateSkill({
+        skillValue: proc.skillValue,
+        propertyAtk,
+        maxHp,
+        maxSp,
+        basicDmg,
+        basicAspd,
+        actualBasicCriRate,
+        criShield,
+      });
+
+      if (!evaluated || 'invalidMsg' in evaluated) {
+        continue;
+      }
+
+      summaries.push({
+        sourceLabel: proc.sourceLabel,
+        skillLabel: evaluated.skillName,
+        chancePercent: proc.chancePercent,
+        minDamage: evaluated.skillDmg.skillMinDamage,
+        maxDamage: evaluated.skillDmg.skillMaxDamage,
+        totalHit: evaluated.skillDmg.skillTotalHit,
+        dps: floor(basicAspd.hitsPerSec * (proc.chancePercent / 100) * evaluated.perCastExpectedDamage),
+      });
+    }
+
+    return summaries;
+  }
+
   calculateAllDamages(args: { skillValue: string; propertyAtk: ElementType; maxHp: number; maxSp: number; }): DamageSummaryModel {
     const { skillValue, propertyAtk, maxHp, maxSp } = args;
     const sizePenalty = this.getSizePenalty();
@@ -1191,243 +1511,55 @@ export class DamageCalculator {
       totalPene: this.isActiveInfilltration ? 100 : this.getTotalPhysicalPene(),
       accuracy: misc.accuracy,
       basicDps,
+      autoAttackProcSummaries: [],
+      autoAttackProcDps: 0,
+      autoAttackTotalDps: basicDps,
       pAtk,
       sMatk,
       cRate,
     };
 
-    const [, _skillName, skillLevelStr] = skillValue?.match(/(.+)==(\d+)/) ?? [];
-    const skillData = this._class.atkSkills.find((a) => a.value === skillValue || a.levelList?.findIndex((b) => b.value === skillValue) >= 0);
-    const isValidSkill = !!_skillName && !!skillLevelStr && typeof skillData?.formula === 'function';
-
-    if (!isValidSkill) return { basicDmg, misc, basicAspd };
-
-    const skillLevel = Number(skillLevelStr);
-    const {
-      formula,
-      part2,
-      baseCri: baseSkillCri = 0,
-      isMatk,
-      isMelee: _isMelee,
-      autoSpellChance = 1,
-      isHit100,
-      isIgnoreDef = false,
-      totalHit: _totalHit = 1,
-      name: skillName,
-      baseCriPercentage = 1,
-      customFormula,
-      getElement,
-      currentHpFn,
-      currentSpFn,
-      maxStack = 0,
-      forceCri = false,
-      verifyItemFn,
-    } = skillData;
-
-    const currentHp = typeof currentHpFn === 'function' ? currentHpFn(maxHp) : 0;
-    const currentSp = typeof currentSpFn === 'function' ? currentSpFn(maxSp) : 0;
-    const formulaParams: AtkSkillFormulaInput = {
-      ...this.infoForClass,
-      skillLevel,
+    const autoAttackProcSummaries = this.calculateAutoAttackProcSummaries({
+      basicDmg,
+      basicAspd,
+      propertyAtk,
       maxHp,
       maxSp,
-      currentHp,
-      currentSp,
-      stack: maxStack,
-    };
+      actualBasicCriRate,
+      criShield,
+    });
+    const autoAttackProcDps = autoAttackProcSummaries.reduce((sum, proc) => sum + proc.dps, 0);
+    basicDmg.autoAttackProcSummaries = autoAttackProcSummaries;
+    basicDmg.autoAttackProcDps = autoAttackProcDps;
+    basicDmg.autoAttackTotalDps = basicDps + autoAttackProcDps;
 
+    const evaluatedSkill = this.evaluateSkill({
+      skillValue,
+      propertyAtk,
+      maxHp,
+      maxSp,
+      basicDmg,
+      basicAspd,
+      actualBasicCriRate,
+      criShield,
+    });
 
-    const invalidMsg = verifyItemFn && typeof verifyItemFn === 'function' ? verifyItemFn(formulaParams) : '';
-    if (invalidMsg) {
-      basicDmg.requireTxt = invalidMsg;
+    if (!evaluatedSkill) {
+      return { basicDmg, misc, basicAspd };
+    }
+
+    if ('invalidMsg' in evaluatedSkill) {
+      basicDmg.requireTxt = evaluatedSkill.invalidMsg;
       return { basicDmg, misc, basicAspd, skillDmg: { ...this.zeroSkillDmg } };
     }
 
-    const _baseSkillDamage = formula(formulaParams) + this.getFlatDmg(skillName);
-    let baseSkillDamage = floor(_baseSkillDamage);
-
-    const _NoStackbaseSkillDamage = formula({ ...formulaParams, stack: 0 }) + this.getFlatDmg(skillName);
-    const noStackNaseSkillDamage = floor(_NoStackbaseSkillDamage);
-
-    const params = {
-      baseSkillDamage,
-      skillData,
-      weaponPropertyAtk: typeof getElement === 'function' && !!getElement ? getElement(skillValue) : propertyAtk,
-      sizePenalty,
-      formulaParams,
+    return {
+      basicDmg,
+      misc,
+      skillDmg: evaluatedSkill.skillDmg,
+      skillAspd: evaluatedSkill.skillAspd,
+      basicAspd,
     };
-
-    let calculated: DamageResultModel;
-    let noStackMaxCriDamage = 0;
-    let noStackMaxDamage = 0;
-    let noStackMinCriDamage = 0;
-    let noStackMinDamage = 0;
-
-    if (skillName === 'Fist Spell' && typeof skillData.treatedAsSkillNameFn === 'function') {
-      const newSkillValue = skillData.treatedAsSkillNameFn(skillValue);
-      const newSkillData = this._class.atkSkills.find((a) => a.value === newSkillValue || a.levelList?.findIndex((b) => b.value === newSkillValue) >= 0);
-      if (newSkillData) {
-        calculated = this.calcMagicalSkillDamage({
-          ...params,
-          skillData: {
-            ...params.skillData,
-            formula: newSkillData.formula,
-            name: newSkillData.name,
-          },
-        });
-      }
-    } else if (customFormula && typeof customFormula === 'function') {
-      const skillPropertyAtk = typeof getElement === 'function' ? getElement(skillValue) : skillData.element || propertyAtk;
-      const propertyMultiplier = this.getPropertyMultiplier(skillPropertyAtk);
-
-      const d = customFormula({
-        ...formulaParams,
-        baseSkillDamage,
-        sizePenalty,
-        propertyMultiplier,
-        ...this.getPhisicalDefData(),
-      });
-      calculated = {
-        canCri: false,
-        minDamage: d,
-        maxDamage: d,
-        rawMinNoCri: d,
-        rawMaxNoCri: d,
-        propertyAtk: skillPropertyAtk,
-        propertyMultiplier: propertyMultiplier,
-        avgCriDamage: d,
-        avgNoCriDamage: d,
-        criDmgToMonster: d,
-        sizePenalty,
-      };
-    } else {
-      calculated = isMatk ? this.calcMagicalSkillDamage(params) : this.calcPhysicalSkillDamage(params);
-
-      if (maxStack > 0) {
-        const noStackParam = { ...params, baseSkillDamage: noStackNaseSkillDamage };
-        const noStackCalculated = isMatk ? this.calcMagicalSkillDamage(noStackParam) : this.calcPhysicalSkillDamage(noStackParam);
-        noStackMinDamage = noStackCalculated.rawMinNoCri;
-        noStackMaxDamage = noStackCalculated.rawMaxNoCri;
-        noStackMaxCriDamage = noStackCalculated.minDamage;
-        noStackMinCriDamage = noStackCalculated.maxDamage;
-      }
-    }
-
-    let { minDamage, maxDamage } = calculated;
-    let skillPart2Label = '';
-    let skillMinDamage2 = 0;
-    let skillMaxDamage2 = 0;
-    if (typeof part2?.formula === 'function') {
-      const { formula: formula2, isMatk: isPart2Matk, isIncludeMain, label } = part2;
-      const _baseSkillDamage2 =
-        formula2({
-          ...this.infoForClass,
-          skillLevel,
-          maxHp,
-          maxSp,
-        }) + this.getFlatDmg(skillName);
-      const baseSkillDamage2 = floor(_baseSkillDamage2);
-      baseSkillDamage += baseSkillDamage2;
-
-      const params2 = {
-        baseSkillDamage: baseSkillDamage2,
-        skillData: { ...skillData, ...part2 },
-        weaponPropertyAtk: propertyAtk,
-        sizePenalty,
-        skillLevel,
-      };
-
-      const calcPart2 = isPart2Matk ? this.calcMagicalSkillDamage(params2) : this.calcPhysicalSkillDamage(params2);
-
-      if (isIncludeMain) {
-        minDamage += calcPart2.minDamage;
-        maxDamage += calcPart2.maxDamage;
-      } else {
-        skillPart2Label = label;
-        skillMinDamage2 = calcPart2.minDamage;
-        skillMaxDamage2 = calcPart2.maxDamage;
-      }
-    }
-
-    const skillAspd = calcSkillAspd({ skillData, status: this.status, totalEquipStatus: this.totalBonus, skillLevel });
-
-    const isKatar = this.weaponData.data?.typeName === 'katar';
-    let actualCri = calculated.canCri
-      ? isKatar
-        ? Math.max(0, floor(actualBasicCriRate + baseSkillCri - criShield) * baseCriPercentage)
-        : Math.max(0, floor((actualBasicCriRate + baseSkillCri) * baseCriPercentage) - criShield)
-      : 0;
-    if (this.isForceSkillCri || forceCri) {
-      actualCri = 100;
-    }
-    actualCri = floor(actualCri);
-
-    const skillAccRate = isHit100 || isMatk ? 100 : basicDmg.accuracy;
-    const { avgCriDamage, avgNoCriDamage } = calculated;
-
-    const totalHit = typeof _totalHit === 'function' ? _totalHit(formulaParams) : _totalHit;
-    const isAutoSpell = autoSpellChance != 1;
-    const skillHitsPerSec = Math.min(skillAspd.totalHitPerSec || basicAspd.hitsPerSec, basicAspd.hitsPerSec);
-    const oneHitDps = isAutoSpell
-      ? 0
-      : calcDmgDps({
-        min: avgNoCriDamage || minDamage + skillMinDamage2,
-        max: avgNoCriDamage || maxDamage + skillMaxDamage2,
-        cri: actualCri,
-        criDmg: avgCriDamage || maxDamage + skillMaxDamage2,
-        hitsPerSec: skillHitsPerSec,
-        accRate: skillAccRate,
-      });
-    const skillDps = floor(totalHit * oneHitDps * autoSpellChance);
-    const hitKill = Math.ceil(this.monster.data.hp / minDamage);
-
-    const totalPene = isMatk ? this.getTotalMagicalPene() : basicDmg.totalPene;
-    const isMelee = _isMelee != null && typeof _isMelee === 'function' ? _isMelee(this.weaponData.data.typeName) : !!_isMelee;
-
-    const label = calculated.canCri ? 'SkillCri' : 'Skill';
-    const { totalPeneRes, totalPeneMres } = this.getPeneResMres();
-
-    const skillDmg: SkillDamageSummaryModel = {
-      skillDamageLabel: `${label}` + (maxStack > 0 ? ` ${maxStack} stacks` : ''),
-      skillNoStackDamageLabel: `${label} 0 stack`,
-      baseSkillDamage,
-      dmgType: isMatk ? SkillType.MAGICAL : isMelee ? SkillType.MELEE : SkillType.RANGE,
-      skillSizePenalty: round(calculated.sizePenalty * 100, 0),
-      skillTotalHit: totalHit,
-      skillPropertyAtk: calculated.propertyAtk,
-      skillPropertyMultiplier: calculated.propertyMultiplier,
-      skillCanCri: calculated.canCri,
-      skillTotalPene: isIgnoreDef ? 100 : totalPene,
-      skillTotalPeneLabel: isMatk ? 'Magic Penetration' : 'Physical Penetration',
-      skillTotalPeneRes: isMatk ? totalPeneMres : totalPeneRes,
-      skillTotalPeneResLabel: isMatk ? 'Magic Res Penetration' : 'Physical Res Penetration',
-      skillMinDamage: minDamage,
-      skillMaxDamage: maxDamage,
-      skillMinDamageNoCri: calculated.rawMinNoCri,
-      skillMaxDamageNoCri: calculated.rawMaxNoCri,
-      skillHit: skillData?.hit || 1,
-      skillAccuracy: skillAccRate,
-      skillDps,
-      skillHitKill: hitKill,
-      skillCriRateToMonster: actualCri,
-      skillCriDmgToMonster: calculated.criDmgToMonster,
-      skillPart2Label,
-      skillMinDamage2,
-      skillMaxDamage2,
-      maxStack,
-      noStackMaxCriDamage,
-      noStackMaxDamage,
-      noStackMinCriDamage,
-      noStackMinDamage,
-      isAutoSpell,
-      isUsedCurrentHP: typeof currentHpFn === 'function',
-      isUsedCurrentSP: typeof currentSpFn === 'function',
-      currentHp,
-      currentSp,
-      skillBonusFromEquipment: this.getSkillBonus(skillName),
-    };
-
-    return { basicDmg, misc, skillDmg, skillAspd, basicAspd };
   }
 
   get atkSummaryForUI() {

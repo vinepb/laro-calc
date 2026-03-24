@@ -429,12 +429,34 @@
       <div class="col-12">
         <app-calc-value
           [enableCompare]="isEnableCompare && totalSummary2?.dmg"
-          label="DPS:"
+          [label]="'calculator.battle.autoAttackDps' | t"
           styleClass="summary_highlight"
           styleClass2="summary_compare"
           [showPercentDiff]="true"
           [max]="totalSummary?.dmg?.basicDps"
           [max2]="totalSummary2?.dmg?.basicDps"
+        ></app-calc-value>
+      </div>
+      <div class="col-12" *ngFor="let proc of totalSummary?.dmg?.autoAttackProcSummaries">
+        <app-calc-value
+          [enableCompare]="isEnableCompare && totalSummary2?.dmg"
+          [label]="('calculator.battle.autoCastDps' | t) + ' ' + proc.skillLabel + ' (' + proc.sourceLabel + ', ' + proc.chancePercent + '%)'"
+          styleClass="summary_chance_hilight"
+          styleClass2="summary_compare"
+          [showPercentDiff]="true"
+          [max]="proc.dps"
+          [max2]="getCompareProc(proc)?.dps"
+        ></app-calc-value>
+      </div>
+      <div class="col-12" [hidden]="!totalSummary?.dmg?.autoAttackProcSummaries?.length">
+        <app-calc-value
+          [enableCompare]="isEnableCompare && totalSummary2?.dmg"
+          [label]="'calculator.battle.autoAttackTotalDps' | t"
+          styleClass="summary_highlight"
+          styleClass2="summary_compare"
+          [showPercentDiff]="true"
+          [max]="totalSummary?.dmg?.autoAttackTotalDps"
+          [max2]="totalSummary2?.dmg?.autoAttackTotalDps"
         ></app-calc-value>
       </div>
       <div class="col-12" [hidden]="totalSummary?.dmg?.effectedBasicDamageMin <= 0 || !selectedChances?.length">

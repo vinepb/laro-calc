@@ -2,6 +2,7 @@ import { ClassName } from './_class-name';
 import { ActiveSkillModel, AtkSkillFormulaInput, AtkSkillModel, DefForCalcModel, PassiveSkillModel } from './_character-base.abstract';
 import { LordKnight } from './LordKnight';
 import { ElementType } from '../constants/element-type.const';
+import { AutoAttackProcDefinition } from '../models/auto-attack-proc.model';
 import { AdditionalBonusInput, InfoForClass } from '../models/info-for-class.model';
 import { floor, round } from '../utils';
 
@@ -129,7 +130,7 @@ export class RuneKnight extends LordKnight {
       name: 'Sonic Wave',
       label: 'Sonic Wave Lv10',
       value: 'Sonic Wave==10',
-      values: ['[Improved 2nd] Sonic Wave==10'],
+      values: ['[Improved 2nd] Sonic Wave==10', ...Array.from({ length: 10 }, (_, index) => `Sonic Wave==${index + 1}`)],
       acd: 0.5,
       fct: 0,
       vct: 0,
@@ -175,7 +176,7 @@ export class RuneKnight extends LordKnight {
       name: 'Ignition Break',
       label: 'Ignition Break Lv5',
       value: 'Ignition Break==5',
-      values: ['[Improved 2nd] Ignition Break==5'],
+      values: ['[Improved 2nd] Ignition Break==5', ...Array.from({ length: 5 }, (_, index) => `Ignition Break==${index + 1}`)],
       acd: 0,
       fct: 0,
       vct: 1,
@@ -210,6 +211,26 @@ export class RuneKnight extends LordKnight {
         }
 
         return (600 + 200 * skillLevel) * (baseLevel / 100) + clashingSpiralBonus;
+      },
+    },
+    {
+      name: 'Storm Blast',
+      label: 'Storm Blast Lv1',
+      value: 'Storm Blast==1',
+      acd: 1,
+      fct: 0.4,
+      vct: 1.6,
+      cd: 0,
+      canCri: true,
+      criDmgPercentage: 0.5,
+      isMelee: true,
+      formula: (input: AtkSkillFormulaInput): number => {
+        const { model, status } = input;
+        const { totalStr } = status;
+        const baseLevel = model.level;
+        const runeMasteryLevel = this.learnLv('Rune Mastery');
+
+        return (runeMasteryLevel + totalStr / 5.7) * 100 * (baseLevel / 100);
       },
     },
     {
@@ -648,6 +669,22 @@ export class RuneKnight extends LordKnight {
     }
 
     return 0;
+  }
+
+  override getAutoAttackProcs(): AutoAttackProcDefinition[] {
+    if (!this.isSkillActive('Lux Anima Runestone')) {
+      return [];
+    }
+
+    return [
+      {
+        skillName: 'Storm Blast',
+        baseSkillLevel: 1,
+        chancePercent: 15,
+        requiresMelee: true,
+        sourceLabel: 'Lux Anima Runestone',
+      },
+    ];
   }
 
   override getAdditionalBasicDmg(info: InfoForClass): number {

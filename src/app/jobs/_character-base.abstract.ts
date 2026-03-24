@@ -2,6 +2,7 @@ import { environment } from 'src/environments/environment';
 import { AspdPotionFixBonus } from '../constants';
 import { ElementType } from '../constants/element-type.const';
 import { OFFENSIVE_SKILL_NAMES, SKILL_NAME } from '../constants/skill-name';
+import { AutoAttackProcDefinition } from '../models/auto-attack-proc.model';
 import { WeaponTypeName } from '../constants/weapon-type-mapper';
 import { Weapon } from '../domain';
 import { EquipmentSummaryModel } from '../models/equipment-summary.model';
@@ -344,6 +345,10 @@ export abstract class CharacterBase {
       minMaxLevel: this.minMaxLevel,
       maxJob: this.maxJob,
     };
+  }
+
+  getAutoAttackProcs(): AutoAttackProcDefinition[] {
+    return [];
   }
 
   protected learnLv(skillName: SKILL_NAME) {

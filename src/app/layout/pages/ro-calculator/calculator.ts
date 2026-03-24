@@ -13,6 +13,7 @@ import { Monster, Weapon } from 'src/app/domain';
 import { CharacterBase } from 'src/app/jobs';
 import { createRawTotalBonus, floor, isNumber, round } from 'src/app/utils';
 import { ChanceModel } from '../../../models/chance-model';
+import { AutoAttackProcDefinition } from '../../../models/auto-attack-proc.model';
 import { BasicAspdModel, BasicDamageSummaryModel, MiscModel, SkillAspdModel, SkillDamageSummaryModel } from '../../../models/damage-summary.model';
 import { EquipmentSummaryModel } from '../../../models/equipment-summary.model';
 import { HpSpTable } from '../../../models/hp-sp-table.model';
@@ -49,6 +50,15 @@ interface ValidationResult {
   isValid: boolean;
   isEndValidate?: boolean;
   restCondition: string;
+}
+
+interface ResolvedAutoAttackProcModel extends Omit<AutoAttackProcDefinition, 'chancePercent' | 'chanceScriptKey' | 'sourceLabel'> {
+  chancePercent: number;
+  sourceLabel: string;
+}
+
+interface ActiveAutoAttackProcModel extends ResolvedAutoAttackProcModel {
+  skillValue: string;
 }
 
 export class Calculator {
@@ -252,6 +262,7 @@ export class Calculator {
 
   private selectedChanceList = [] as string[];
   private _chanceList = [] as ChanceModel[];
+  private itemAutoAttackProcs = [] as ResolvedAutoAttackProcModel[];
   private equipCombo = new Set<string>();
 
   private skillFrequency: SkillAspdModel = {
@@ -535,7 +546,8 @@ export class Calculator {
         aspdPotion: this.aspdPotion,
         leftWeaponData: this.leftWeaponData,
       })
-      .setAmmoPropertyAtk(this.equipItem.get(ItemTypeEnum.ammo)?.propertyAtk);
+      .setAmmoPropertyAtk(this.equipItem.get(ItemTypeEnum.ammo)?.propertyAtk)
+      .setAutoAttackProcs(this.resolveAutoAttackProcs());
 
     return this;
   }
@@ -976,6 +988,85 @@ export class Calculator {
     return false;
   }
 
+  private sumScriptValue(params: { itemType: ItemTypeEnum; itemRefine: number; item: ItemModel; attr: string; attrScripts: string[]; }) {
+    const { itemType, itemRefine, item, attr, attrScripts } = params;
+
+    return attrScripts.reduce((sum, lineScript) => {
+      if (this.isAreadyCalcCombo({ item, attr, lineScript })) {
+        return sum;
+      }
+
+      const { isValid, restCondition } = this.validateCondition({ itemType, itemRefine, script: lineScript });
+      if (!isValid) return sum;
+
+      if (restCondition.includes('===')) {
+        return sum + this.calcConstantBonus(itemRefine, restCondition);
+      }
+      if (restCondition.includes('---')) {
+        return sum + this.calcStepBonus(itemRefine, restCondition);
+      }
+
+      if (Number.isNaN(Number(restCondition))) {
+        console.log('cannot turn to number', { lineScript, restCondition });
+
+        return sum;
+      }
+
+      return sum + Number(restCondition);
+    }, 0);
+  }
+
+  private isAutoAttackProcChanceKey(item: ItemModel, attr: string) {
+    return item.autoAttackProcs?.some((proc) => proc.chanceScriptKey === attr) || false;
+  }
+
+  private addItemAutoAttackProcs(params: { item: ItemModel; total: Record<string, number>; }) {
+    const { item, total } = params;
+    if (!Array.isArray(item.autoAttackProcs) || item.autoAttackProcs.length === 0) {
+      return;
+    }
+
+    for (const proc of item.autoAttackProcs) {
+      const { chanceScriptKey } = proc;
+      const chancePercent = chanceScriptKey ? Number(total[chanceScriptKey] || 0) : Number(proc.chancePercent || 0);
+      if (!chancePercent) {
+        continue;
+      }
+
+      this.itemAutoAttackProcs.push({
+        ...proc,
+        chancePercent,
+        sourceLabel: proc.sourceLabel || item.name,
+      });
+    }
+  }
+
+  private resolveAutoAttackProcs(): ActiveAutoAttackProcModel[] {
+    const itemProcs: ActiveAutoAttackProcModel[] = this.itemAutoAttackProcs.map((proc) => {
+      const learnedLevel = proc.useLearnedLevelIfHigher ? (this.learnedSkillMap.get(proc.skillName) || 0) : 0;
+      const skillLevel = Math.max(proc.baseSkillLevel, learnedLevel);
+
+      return {
+        ...proc,
+        skillValue: `${proc.skillName}==${skillLevel}`,
+      };
+    });
+
+    const classProcs: ActiveAutoAttackProcModel[] = this._class.getAutoAttackProcs().map((proc) => {
+      const learnedLevel = proc.useLearnedLevelIfHigher ? (this.learnedSkillMap.get(proc.skillName) || 0) : 0;
+      const skillLevel = Math.max(proc.baseSkillLevel, learnedLevel);
+
+      return {
+        ...proc,
+        chancePercent: Number(proc.chancePercent || 0),
+        sourceLabel: proc.sourceLabel || proc.skillName,
+        skillValue: `${proc.skillName}==${skillLevel}`,
+      };
+    }).filter((proc) => proc.chancePercent > 0);
+
+    return [...itemProcs, ...classProcs];
+  }
+
   private calcItemStatus(params: { itemType: ItemTypeEnum; itemRefine: number; item: ItemModel; }) {
     const { item, itemRefine, itemType } = params;
     const total: Record<string, number> = {};
@@ -994,37 +1085,19 @@ export class Calculator {
         this.updateBaseEquipStat(attr, attrScripts[0]);
       }
 
-      total[attr] = attrScripts.reduce((sum, lineScript) => {
-        if (this.isAreadyCalcCombo({ item, attr, lineScript })) {
-          return sum;
-        }
+      total[attr] = this.sumScriptValue({ itemType, itemRefine, item, attr, attrScripts });
 
-        const { isValid, restCondition } = this.validateCondition({ itemType, itemRefine, script: lineScript });
-        // console.log({ lineScript, restCondition, isValid });
-        if (!isValid) return sum;
-
-        if (restCondition.includes('===')) {
-          return sum + this.calcConstantBonus(itemRefine, restCondition);
-        }
-        if (restCondition.includes('---')) {
-          return sum + this.calcStepBonus(itemRefine, restCondition);
-        }
-
-        if (Number.isNaN(Number(restCondition))) {
-          console.log('cannot turn to number', { lineScript, restCondition });
-
-          return sum;
-        }
-
-        return sum + Number(restCondition);
-      }, 0);
+      if (this.isAutoAttackProcChanceKey(item, attr)) {
+        continue;
+      }
 
       if (attr.startsWith('chance__') && isNumber(total[attr]) && total[attr] !== 0) {
         const actualAttr = attr.replace('chance__', '');
-        // console.log({ actualAttr, t: total[attr] });
         addChance(actualAttr, total[attr]);
       }
     }
+
+    this.addItemAutoAttackProcs({ item, total });
 
     const chances = Object.keys(chance);
     if (Object.keys(chances).length > 0) {
@@ -1079,6 +1152,7 @@ export class Calculator {
     this.propertyBasicAtk = ElementType.Neutral;
     this.propertyWindmind = undefined;
     this._chanceList = [];
+    this.itemAutoAttackProcs = [];
     this.equipCombo.clear();
 
     const updateTotalStatus = (attr: keyof EquipmentSummaryModel, value: number) => {
