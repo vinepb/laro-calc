@@ -51,11 +51,18 @@ When reviewing and importing updates from other forks:
    - If `last_reviewed` is set, use `git log --oneline --reverse <last_reviewed>..<remote>/<branch> --not upstream/main`.
    - If `last_reviewed` is `null`, start from `git log --oneline --reverse upstream/main..<remote>/<branch>`.
 7. When importing a useful change, use `git cherry-pick -x <sha>` so the original commit hash is preserved in the new commit message.
-8. After each review pass, update `.fork-tracking.yml` even if nothing was imported.
+8. Keep the local workspace clean while doing fork review work.
+   Commit meaningful import batches promptly instead of leaving long-lived uncommitted changes around.
+   Prefer keeping the review branch in a commit-ready state before moving on to the next batch.
+9. For fork-review and selective-import branches, rely on the GitHub CI build as the main verification step.
+   Prefer pushing the dev branch and watching the branch CI run instead of running local page builds.
+   Only use local verification when the user explicitly asks for it or when CI cannot answer the question.
+10. After each review pass, update `.fork-tracking.yml` even if nothing was imported.
    - refresh `current_tip`
    - advance `last_reviewed` to the newest commit that was reviewed
    - update `review_status` and `notes` so the next pass can start from the correct place
-9. Keep the per-fork ledger in `.fork-reviews/` up to date as commit decisions are made.
+11. Keep the per-fork ledger in `.fork-reviews/` up to date as commit decisions are made.
    `.fork-tracking.yml` is the source-level checkpoint; the ledger is the commit-level decision log.
-10. If a new fork remote is added, add it to `.fork-tracking.yml` in the same change.
-11. Do not leave `.fork-tracking.yml` stale after reviewing or importing from another fork. The file is what tells future work where review should resume.
+12. Push the active dev branch whenever a review/import batch is ready for validation, and watch the GitHub CI run to completion before continuing with risky follow-up work.
+13. If a new fork remote is added, add it to `.fork-tracking.yml` in the same change.
+14. Do not leave `.fork-tracking.yml` stale after reviewing or importing from another fork. The file is what tells future work where review should resume.
