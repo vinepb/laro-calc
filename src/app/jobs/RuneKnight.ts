@@ -213,6 +213,26 @@ export class RuneKnight extends LordKnight {
       },
     },
     {
+      name: 'Storm Blast',
+      label: 'Storm Blast Lv1',
+      value: 'Storm Blast==1',
+      acd: 1,
+      fct: 0.4,
+      vct: 1.6,
+      cd: 0,
+      canCri: true,
+      criDmgPercentage: 0.5,
+      isMelee: true,
+      formula: (input: AtkSkillFormulaInput): number => {
+        const { model, status } = input;
+        const { totalStr } = status;
+        const baseLevel = model.level;
+        const runeMasteryLevel = this.learnLv('Rune Mastery');
+
+        return (runeMasteryLevel + totalStr / 5.7) * 100 * (baseLevel / 100);
+      },
+    },
+    {
       name: 'Dragon Breath',
       label: 'Dragon Breath Lv10',
       value: 'Dragon Breath==10',
